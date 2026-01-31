@@ -1,0 +1,62 @@
+<!-- app/views/shared/_header.html.erb -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+  <div class="container-fluid">
+    <%= link_to "ReBidX", root_path, class: "navbar-brand" %>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <% if current_user %>
+      <%= turbo_stream_from "notifications_count_#{current_user.id}" %>
+
+      <%= link_to notifications_path, class: "position-relative" do %>
+        🔔
+        <%= render "notifications/bell_count", user: current_user %>
+      <% end %>
+    <% end %>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto align-items-center">
+        <% if user_signed_in? %>
+          <% if current_user.service_provider? || current_user.handyman? %>
+            <li class="nav-item">
+              <%= link_to "Dashboard", provider_dashboard_path, class: "nav-link" %>
+            </li>
+          <% else %>
+            <li class="nav-item">
+              <%= link_to "Dashboard", homeowner_dashboard_path, class: "nav-link" %>
+            </li>
+            <li class="nav-item ms-2">
+              <% gate = ::MembershipGate.new(current_user) %>
+              <% if gate.can_create_listing? %>
+                <%= link_to "Post a Listing",
+                            new_listing_path,
+                            data: { turbo: false },
+                            class: "btn btn-primary btn-sm" %>
+              <% end %>
+            </li>
+          <% end %>
+            <li class="nav-item ms-2">
+              <%= button_to "Logout", destroy_user_session_path,
+                            method: :delete,
+                            data: { turbo: false },
+                            class: "nav-link" %>
+
+            </li>
+        <% else %>
+          <li class="nav-item">
+            <%= link_to "login", new_user_session_path,
+                        class: "nav-link" %>
+
+          </li>
+          <li class="nav-item ms-2">
+            <%= link_to "Sign Up", new_user_registration_path,
+                        class: "btn btn-outline-primary btn-sm" %>
+
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</nav>

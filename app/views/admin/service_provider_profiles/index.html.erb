@@ -1,0 +1,76 @@
+<div class="container mt-4">
+  <h2>Service Provider Verification</h2>
+
+  <table class="table table-hover align-middle">
+    <thead class="table-dark">
+    <tr>
+      <th>Business</th>
+      <th>Email</th>
+      <th>Verified</th>
+      <th>Joined</th>
+      <th>ID</th>
+      <th>Business License</th>
+      <th>Tax Document</th>
+      <th>Ratings</th> <!-- NEW -->
+      <th>Actions</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <% @profiles.each do |profile| %>
+      <tr id="profile_<%= profile.id %>">
+        <td><%= profile.business_name %></td>
+        <td><%= profile.user.email %></td>
+        <td>
+          <% if profile.verified? %>
+            <span class="badge bg-success">Verified</span>
+          <% else %>
+            <span class="badge bg-secondary">Unverified</span>
+          <% end %>
+        </td>
+        <td><%= profile.created_at.strftime("%b %d, %Y") %></td>
+        <td>
+          <% if profile.government_id.attached? %>
+            <%= link_to "View ID", url_for(profile.government_id), target: "_blank" %>
+          <% else %>—<% end %>
+        </td>
+        <td>
+          <% if profile.business_license_file.attached? %>
+            <%= link_to "View License", url_for(profile.business_license_file), target: "_blank" %>
+          <% else %>—<% end %>
+        </td>
+        <td>
+          <% if profile.tax_document.attached? %>
+            <%= link_to "View Tax", url_for(profile.tax_document), target: "_blank" %>
+          <% else %>—<% end %>
+        </td>
+
+        <!-- Ratings Column -->
+        <td>
+          <% avg = profile.ratings.average(:score)&.round(2) %>
+          <% count = profile.ratings.count %>
+          <% if count > 0 %>
+            <span title="<%= count %> ratings"><%= avg %> ⭐ (<%= count %>)</span>
+          <% else %>
+            —
+          <% end %>
+        </td>
+
+        <td>
+          <% unless profile.verified? %>
+            <%= button_to "Verify",
+                          verify_admin_service_provider_profile_path(profile),
+                          method: :patch,
+                          class: "btn btn-sm btn-success",
+                          form_class: "d-inline",
+                          data: { turbo: true } %>
+          <% else %>
+            <span class="text-muted">—</span>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+</div>
+

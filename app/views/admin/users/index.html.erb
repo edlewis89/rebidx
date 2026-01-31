@@ -1,0 +1,27 @@
+<!-- app/views/admin/users/index.html.erb -->
+<h1>Admin: Users</h1>
+
+<table class="table table-striped">
+  <thead>
+  <tr>
+    <th>Email</th>
+    <th>Name</th>
+    <th>Role</th>
+    <th>Joined</th>
+    <th>Actions</th>
+  </tr>
+  </thead>
+  <tbody>
+  <% @users.each do |user| %>
+    <tr>
+      <td><%= user.email %></td>
+      <td><%= user.name %></td>
+      <td><%= user.role.humanize %></td>
+      <td><%= user.created_at.strftime("%b %d, %Y") %></td>
+      <td>
+        <%= link_to "View", admin_user_path(user), class: "btn btn-sm btn-primary" %>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

@@ -1,0 +1,54 @@
+<!-- app/views/admin/listings/index.html.erb -->
+<div class="container mt-4">
+  <h2 class="fw-bold mb-3">All Listings</h2>
+
+  <% if @listings.any? %>
+    <table class="table table-hover align-middle">
+      <thead class="table-dark">
+      <tr>
+        <th>Title</th>
+        <th>Owner</th>
+        <th>Services</th>
+        <th>Status</th>
+        <th>Budget</th>
+        <th class="text-end">Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <% @listings.each do |listing| %>
+        <tr>
+          <td><%= link_to listing.title, admin_listing_path(listing), class: "fw-semibold text-decoration-none" %></td>
+          <td><%= listing.user.name || listing.user.email %></td>
+          <td><%= listing.services.map(&:name).join(", ") %></td>
+          <td>
+              <span class="badge
+                <%= listing.open? ? 'bg-secondary' :
+                                                 listing.awarded? ? 'bg-success' :
+                                                   'bg-dark' %>">
+                <%= listing.status.humanize %>
+              </span>
+          </td>
+          <td><%= number_to_currency(listing.budget) %></td>
+          <td class="text-end">
+            <div class="btn-group btn-group-sm" role="group">
+              <%= link_to "View", admin_listing_path(listing), class: "btn btn-outline-primary" %>
+              <%= link_to "Edit", edit_admin_listing_path(listing), class: "btn btn-outline-warning" %>
+              <%= button_to "Delete",
+                            admin_listing_path(listing),
+                            method: :delete,
+                            data: { confirm: "Are you sure?" },
+                            class: "btn btn-outline-danger",
+                            form_class: "d-inline" %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <div class="alert alert-light border text-center p-4">
+      <h5 class="mb-2">No listings found</h5>
+      <p class="text-muted mb-3">All listings will appear here.</p>
+    </div>
+  <% end %>
+</div>

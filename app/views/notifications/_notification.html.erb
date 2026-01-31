@@ -1,0 +1,16 @@
+<%= turbo_frame_tag dom_id(notification) do %>
+  <div class="notification-item d-flex justify-content-between align-items-start border-bottom p-3 <%= 'opacity-50' if notification.read_at %>">
+    <div>
+      <strong><%= notification.title %></strong><br>
+      <small class="text-muted"><%= notification.body %></small>
+    </div>
+
+    <% unless notification.read_at %>
+      <%= button_to "Mark read",
+                    mark_as_read_notification_path(notification),
+                    method: :patch,
+                    form: { data: { turbo_stream: true } },
+                    class: "btn btn-sm btn-outline-secondary" %>
+    <% end %>
+  </div>
+<% end %>

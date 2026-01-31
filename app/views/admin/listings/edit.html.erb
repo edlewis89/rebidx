@@ -1,0 +1,44 @@
+<!-- app/views/admin/listings/edit.html.erb -->
+<div class="container mt-4">
+  <h2>Edit Listing</h2>
+
+  <%= form_with model: [:admin, @listing], local: true do |f| %>
+    <div class="mb-3">
+      <%= f.label :title %>
+      <%= f.text_field :title, class: "form-control", required: true %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.label :description %>
+      <%= f.text_area :description, rows: 4, class: "form-control" %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.label :budget %>
+      <%= f.number_field :budget, step: 0.01, class: "form-control", required: true %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.label :listing_type %>
+      <%= f.select :listing_type, Listing.listing_types.keys.map { |k| [k.humanize, k] }, {}, class: "form-select" %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.label :status %>
+      <%= f.select :status, Listing.statuses.keys.map { |s| [s.humanize, s] }, {}, class: "form-select" %>
+    </div>
+
+    <div class="mb-3">
+      <label>Services</label>
+      <div class="form-check">
+        <% @services.each do |service| %>
+          <%= check_box_tag "listing[service_ids][]", service.id, @listing.services.include?(service), class: "form-check-input", id: "service_#{service.id}" %>
+          <%= label_tag "service_#{service.id}", service.name, class: "form-check-label" %><br>
+        <% end %>
+      </div>
+    </div>
+
+    <%= f.submit "Save Changes", class: "btn btn-primary" %>
+    <%= link_to "Back", admin_listings_path, class: "btn btn-secondary ms-2" %>
+  <% end %>
+</div>

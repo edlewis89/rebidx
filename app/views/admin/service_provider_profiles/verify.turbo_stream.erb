@@ -1,0 +1,4 @@
+<!-- app/views/admin/service_provider_profiles/verify.turbo_stream.erb -->
+<%= turbo_stream.replace "service_provider_#{@profile.id}" do %>
+  <%= render partial: "admin/service_provider_profile_row", locals: { profile: @profile } %>
+<% end %>

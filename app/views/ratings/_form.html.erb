@@ -1,0 +1,15 @@
+<h3>Rate <%= @bid.user.name %> for "<%= @bid.listing.title %>"</h3>
+
+<%= form_with model: [@bid, @rating], local: true do |f| %>
+  <div class="mb-2">
+    <%= f.label :score, "Rating (1-5 stars)" %>
+    <%= f.number_field :score, in: 1..5, step: 1, class: "form-control" %>
+  </div>
+
+  <div class="mb-2">
+    <%= f.label :comment, "Comment (optional)" %>
+    <%= f.text_area :comment, class: "form-control" %>
+  </div>
+
+  <%= f.submit "Submit Rating", class: "btn btn-primary" %>
+<% end %>

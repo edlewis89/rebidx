@@ -1,0 +1,112 @@
+<%= form_with model: @profile,
+              url: provider_onboarding_path,
+              method: :patch,
+              local: true do |f| %>
+
+  <!-- Business Name -->
+  <div class="mb-3">
+    <%= f.label :business_name %>
+    <%= f.text_field :business_name, class: "form-control", required: true %>
+  </div>
+
+  <!-- Full Name -->
+  <div class="mb-3">
+    <%= f.label :full_name %>
+    <%= f.text_field :full_name, class: "form-control", required: true %>
+  </div>
+
+  <!-- Phone -->
+  <div class="mb-3">
+    <%= f.label :phone_number %>
+    <%= f.telephone_field :phone_number, class: "form-control" %>
+  </div>
+
+  <!-- Tax ID (conditionally required) -->
+  <div class="mb-3">
+    <%= f.label :tax_id, "Tax ID / EIN" %>
+    <%= f.text_field :tax_id,
+                     class: "form-control",
+                     required: @profile.requires_verification? %>
+    <small class="text-muted">
+      Required only if you select a license that requires verification.
+    </small>
+  </div>
+
+  <!-- Government ID -->
+  <div class="mb-3">
+    <%= f.label :government_id, "Government ID" %>
+    <%= f.file_field :government_id, class: "form-control" %>
+  </div>
+
+  <!-- Business License -->
+  <div class="mb-3">
+    <%= f.label :business_license_number %>
+    <%= f.text_field :business_license_number, class: "form-control" %>
+  </div>
+
+  <hr>
+
+  <!-- License Types -->
+  <h5>Licenses (optional)</h5>
+  <p class="text-muted">Select only what applies to your business.</p>
+
+  <% @license_types.each do |license| %>
+    <div class="form-check mb-2">
+      <%= check_box_tag "license_type_ids[]",
+                        license.id,
+                        @profile.license_types.include?(license),
+                        class: "form-check-input",
+                        id: dom_id(license) %>
+
+      <%= label_tag dom_id(license),
+                    license.name,
+                    class: "form-check-label" %>
+
+      <% if license.requires_verification? %>
+        <span class="badge bg-warning ms-2">Verification Required</span>
+      <% end %>
+    </div>
+  <% end %>
+
+  <hr>
+
+  <!-- Services -->
+  <h5>Services Offered</h5>
+
+  <% @services&.each do |service| %>
+    <div class="form-check">
+      <%= check_box_tag "service_ids[]",
+                        service.id,
+                        @profile.services.include?(service),
+                        class: "form-check-input",
+                        id: dom_id(service) %>
+
+      <%= label_tag dom_id(service),
+                    service.name,
+                    class: "form-check-label" %>
+    </div>
+  <% end %>
+
+  <hr>
+
+  <!-- Verification Status -->
+  <% if @profile.not_required? %>
+    <div class="alert alert-info">
+      Your account does not require verification. You can bid immediately.
+    </div>
+  <% elsif @profile.pending? %>
+    <div class="alert alert-warning">
+      Your account is pending verification.
+    </div>
+  <% elsif @profile.rejected? %>
+    <div class="alert alert-danger">
+      Verification rejected. Please update and resubmit.
+    </div>
+  <% elsif @profile.verified? %>
+    <div class="alert alert-success">
+      Your account is verified ✅
+    </div>
+  <% end %>
+
+  <%= f.submit "Save Profile", class: "btn btn-primary mt-3" %>
+<% end %>

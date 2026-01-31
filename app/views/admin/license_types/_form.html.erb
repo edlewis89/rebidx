@@ -1,0 +1,18 @@
+<%= form_with model: [:admin, @license_type], local: true do |f| %>
+  <div class="mb-3">
+    <%= f.label :name %>
+    <%= f.text_field :name, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :description %>
+    <%= f.text_area :description, class: "form-control" %>
+  </div>
+
+  <div class="form-check mb-3">
+    <%= f.check_box :requires_verification, { class: "form-check-input" }, "true", "false" %>
+    <%= f.label :requires_verification, "Requires Verification", class: "form-check-label" %>
+  </div>
+
+  <%= f.submit class: "btn btn-primary" %>
+<% end %>

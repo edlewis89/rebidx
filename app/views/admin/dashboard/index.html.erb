@@ -1,0 +1,100 @@
+<div class="container mt-4">
+  <h2>Admin Dashboard</h2>
+  <hr>
+
+  <div class="row text-center mb-4 g-3">
+
+    <!-- Verification Profiles -->
+    <div class="col-md-4">
+      <div class="card p-3 shadow-sm">
+        <h5>Total Verification Profiles</h5>
+        <p class="fs-3"><%= @total_verification_profiles %></p>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card p-3 bg-success text-white shadow-sm">
+        <h5>Verified Users</h5>
+        <p class="fs-3"><%= @verified_users %></p>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card p-3 bg-warning text-dark shadow-sm">
+        <h5>Pending Verifications</h5>
+        <p class="fs-3"><%= @pending_verifications %></p>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card p-3 bg-danger text-white shadow-sm">
+        <h5>Rejected Verifications</h5>
+        <p class="fs-3"><%= @rejected_verifications %></p>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card p-3 shadow-sm">
+        <h5>Unverified Users</h5>
+        <p class="fs-3"><%= @unverified_users %></p>
+      </div>
+    </div>
+
+    <!-- Trust Score -->
+    <div class="col-md-4">
+      <div class="card p-3 shadow-sm">
+        <h5>Average Trust Score</h5>
+        <p class="fs-3"><%= @average_trust_score %></p>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card p-3 bg-primary text-white shadow-sm">
+        <h5>High-Trust Users (70+)</h5>
+        <p class="fs-3"><%= @high_trust_users %></p>
+      </div>
+    </div>
+
+    <!-- Verification Checks -->
+    <div class="col-md-4">
+      <div class="card p-3 shadow-sm">
+        <h5>Total Verification Checks</h5>
+        <p class="fs-3"><%= @total_checks %></p>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card p-3 bg-success text-white shadow-sm">
+        <h5>Passed Checks</h5>
+        <p class="fs-3"><%= @passed_checks %></p>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card p-3 bg-danger text-white shadow-sm">
+        <h5>Failed Checks</h5>
+        <p class="fs-3"><%= @failed_checks %></p>
+      </div>
+    </div>
+
+    <!-- Providers (population only) -->
+    <div class="col-md-4">
+      <div class="card p-3 shadow-sm">
+        <h5>Total Providers</h5>
+        <p class="fs-3"><%= @total_providers %></p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="d-flex gap-2">
+    <%= link_to "Manage Providers",
+                admin_service_provider_profiles_path,
+                class: "btn btn-primary mb-3" %>
+
+    <%= link_to "Review Verifications",
+                admin_verifications_path,
+                class: "btn btn-outline-secondary mb-3" %>
+  </div>
+
+</div>

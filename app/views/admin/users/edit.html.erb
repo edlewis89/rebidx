@@ -1,0 +1,25 @@
+<!-- app/views/admin/users/edit.html.erb -->
+<div class="container mt-4">
+  <h2>Edit User</h2>
+  <hr>
+
+  <%= form_with model: [:admin, @user], local: true do |f| %>
+    <div class="mb-3">
+      <%= f.label :name %>
+      <%= f.text_field :name, class: "form-control" %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.label :email %>
+      <%= f.email_field :email, class: "form-control" %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.label :role %>
+      <%= f.select :role, User.roles.keys.map { |r| [r.humanize, r] }, {}, class: "form-select" %>
+    </div>
+
+    <%= f.submit "Update User", class: "btn btn-primary" %>
+    <%= link_to "Back", admin_users_path, class: "btn btn-secondary" %>
+  <% end %>
+</div>

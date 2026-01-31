@@ -1,0 +1,25 @@
+<%= form_with model: listing, local: true do |f| %>
+
+  <div class="mb-3">
+    <%= f.label :title %>
+    <%= f.text_field :title, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :description %>
+    <%= f.text_area :description, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :budget %>
+    <%= f.number_field :budget, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :listing_type %>
+    <%= f.select :listing_type, Listing.listing_types.keys, {}, class: "form-select" %>
+  </div>
+
+  <%= f.submit class: "btn btn-primary" %>
+
+<% end %>

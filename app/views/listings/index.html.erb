@@ -1,0 +1,76 @@
+<div class="container mt-4">
+  <h2>
+    <% if user_signed_in? && current_user.homeowner? %>
+      My Listings
+    <% else %>
+      Listings
+    <% end %>
+  </h2>
+
+  <% if user_signed_in? && current_user.homeowner? %>
+    <%= link_to "Post New Listing", new_listing_path, class: "btn btn-primary mb-3" %>
+  <% end %>
+
+  <% if @listings.any? %>
+    <table class="table table-striped">
+      <thead class="table-dark">
+      <tr>
+        <th>Title</th>
+        <th>Type</th>
+        <th>Status</th>
+        <th>Budget</th>
+        <% if user_signed_in? %>
+          <th>Actions</th>
+        <% end %>
+      </tr>
+      </thead>
+      <tbody>
+      <% @listings.each do |listing| %>
+        <tr>
+          <td>
+            <% if user_signed_in? %>
+              <%= link_to listing.title, listing_path(listing) %>
+            <% else %>
+              <%= listing.title %>
+            <% end %>
+          </td>
+          <td><%= listing.listing_type.humanize %></td>
+          <td><%= listing.status.humanize %></td>
+          <td><%= number_to_currency(listing.budget) %></td>
+
+          <% if user_signed_in? %>
+            <td>
+              <% if current_user.homeowner? && current_user == listing.user %>
+                <!-- Homeowner can edit/delete their own listings -->
+                <% if listing.editable? %>
+                  <%= link_to "Edit", edit_listing_path(listing), class: "btn btn-sm btn-warning" %>
+                  <%= button_to "Delete", listing_path(listing), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-sm btn-danger" %>
+                <% end %>
+              <% elsif current_user.can_bid_on?(listing) %>
+                <!-- Providers/Handymen can bid -->
+                <% my_bid = listing.bids.find { |b| b.user_id == current_user.id } %>
+                <% if my_bid.present? %>
+                    <span class="badge <%= bid_badge_class(my_bid) %>">
+                      <%= my_bid.status.humanize %>
+                    </span>
+                <% elsif listing.open? %>
+                  <%= link_to "Place Bid",
+                              new_listing_bid_path(listing),
+                              class: "btn btn-sm btn-primary",
+                              data: { turbo: false } %>
+                <% end %>
+              <% end %>
+            </td>
+          <% end %>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <% if user_signed_in? && current_user.homeowner? %>
+      <p>You have not posted any listings yet.</p>
+    <% else %>
+      <p>No listings available right now.</p>
+    <% end %>
+  <% end %>
+</div>

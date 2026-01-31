@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  service_provider_profile: one
+  score: 1
+  comment: MyText
+
+two:
+  user: two
+  service_provider_profile: two
+  score: 1
+  comment: MyText

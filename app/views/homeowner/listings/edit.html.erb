@@ -1,0 +1,49 @@
+<div class="container mt-4">
+  <h2>Edit Listing</h2>
+
+  <%= form_with model: [:homeowner, @listing], local: true do |f| %>
+
+    <div class="mb-3">
+      <%= f.label :title %>
+      <%= f.text_field :title, class: "form-control", required: true %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.label :description %>
+      <%= f.text_area :description, rows: 4, class: "form-control" %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.label :budget %>
+      <%= f.number_field :budget, step: 0.01, class: "form-control", required: true %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.label :listing_type %>
+      <%= f.select :listing_type,
+                   Listing.listing_types.keys.map { |k| [k.humanize, k] },
+                   {}, class: "form-select" %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.label :services, "Services Needed" %>
+      <%= f.collection_check_boxes :service_ids, @services, :id, :name do |b| %>
+        <div class="form-check">
+          <%= b.check_box class: "form-check-input" %>
+          <%= b.label class: "form-check-label" %>
+        </div>
+      <% end %>
+    </div>
+
+    <%= f.submit "Update Listing", class: "btn btn-primary" %>
+    <%= link_to "Back", homeowner_listings_path, class: "btn btn-secondary ms-2" %>
+
+    <% if @listing.persisted? %>
+      <%= button_to "Delete Listing", homeowner_listing_path(@listing),
+                    method: :delete,
+                    data: { confirm: "Are you sure you want to delete this listing?" },
+                    class: "btn btn-danger ms-2" %>
+    <% end %>
+
+  <% end %>
+</div>

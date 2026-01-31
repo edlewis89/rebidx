@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard | <%= Rails.application.class.module_parent_name %></title>
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+
+  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+</head>
+
+<body>
+<div class="d-flex" id="admin-wrapper">
+
+  <!-- Sidebar -->
+  <nav id="sidebar" class="bg-dark text-white p-3" style="width: 220px; min-height: 100vh;">
+    <h3 class="mb-4">Admin</h3>
+
+    <ul class="nav flex-column">
+      <li class="nav-item mb-2">
+        <%= link_to "Dashboard", admin_dashboard_path, class: "nav-link text-white" %>
+      </li>
+
+      <li class="nav-item mb-2">
+        <%= link_to "Users", admin_users_path, class: "nav-link text-white" %>
+      </li>
+
+      <!-- ✅ VERIFICATION TAB -->
+      <li class="nav-item mb-2">
+        <%= link_to "Verification Queue", admin_verifications_path,
+                    class: "nav-link text-white" %>
+      </li>
+
+      <li class="nav-item mb-2">
+        <%= link_to "Service Providers",
+                    admin_service_provider_profiles_path,
+                    class: "nav-link text-white" %>
+      </li>
+
+      <li class="nav-item mb-2">
+        <%= link_to "License Types",
+                    admin_license_types_path,
+                    class: "nav-link text-white" %>
+      </li>
+
+      <li class="nav-item mb-2">
+        <%= link_to "Listings", admin_listings_path, class: "nav-link text-white" %>
+      </li>
+    </ul>
+
+    <hr class="text-white">
+
+    <%= button_to "Logout",
+                  destroy_user_session_path,
+                  method: :delete,
+                  data: { turbo: false },
+                  class: "btn btn-outline-light btn-sm" %>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="flex-grow-1 p-4">
+    <% flash.each do |type, message| %>
+      <div class="alert alert-<%= type == 'alert' ? 'danger' : 'success' %> alert-dismissible fade show" role="alert">
+        <%= message %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <% end %>
+
+    <%= yield %>
+  </div>
+
+</div>
+</body>
+</html>
+
+

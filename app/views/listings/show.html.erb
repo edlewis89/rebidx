@@ -1,0 +1,152 @@
+<div class="container mt-4">
+
+  <!-- Listing Header -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h2 class="fw-bold mb-1"><%= @listing.title %></h2>
+          <p class="text-muted mb-2"><%= @listing.description %></p>
+
+          <span class="badge
+            <%= @listing.open? ? 'bg-secondary' :
+                                         @listing.awarded? ? 'bg-success' :
+                                           'bg-dark' %>">
+            <%= @listing.status.humanize %>
+          </span>
+        </div>
+
+        <% if user_signed_in? && current_user.can_bid_on?(@listing) && @listing.open? %>
+          <% if current_user.unlicensed_provider? && @listing.budget > 1000 %>
+            <!-- Unlicensed providers can't bid on large jobs -->
+            <span class="badge bg-warning text-dark">⚠ Max $1,000 for unlicensed providers</span>
+          <% else %>
+            <%= link_to "Place a Bid",
+                        new_listing_bid_path(@listing),
+                        class: "btn btn-primary",
+                        data: { turbo: false } %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bids Section -->
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0 fw-semibold">Bids</h5>
+      <span class="badge bg-info"><%= @listing.bids.count %></span>
+    </div>
+
+    <% if @listing.bids.any? %>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+          <tr>
+            <th>Provider</th>
+            <th>Amount</th>
+            <th>Message</th>
+            <th>Status</th>
+            <th>Verified</th>
+            <th>Ratings</th>
+            <% if current_user == @listing.user %>
+              <th class="text-end">Actions</th>
+            <% end %>
+          </tr>
+          </thead>
+
+          <tbody>
+          <% @listing.bids.each do |bid| %>
+            <tr>
+              <td class="fw-semibold">
+                <%= bid.user.service_provider_profile&.business_name || bid.user.email %>
+              </td>
+
+              <td>
+                <%= number_to_currency(bid.amount) %>
+              </td>
+
+              <td class="text-muted">
+                <%= bid.message %>
+              </td>
+
+              <td>
+                  <span class="badge
+                    <%= bid.pending? ? 'bg-secondary' :
+                                                         bid.accepted? ? 'bg-success' :
+                                                           'bg-danger' %>">
+                    <%= bid.status.humanize %>
+                  </span>
+              </td>
+
+              <!-- Verified -->
+              <td>
+                <% user_profile = bid.user.service_provider_profile %>
+
+                <% if bid.user.unlicensed_provider? %>
+                  <span class="badge bg-success">✔ Allowed (Unlicensed)</span>
+
+                <% elsif bid.user.service_provider? %>
+                  <% if bid.user.verified_provider? %>
+                    <span class="badge bg-success">✔ Verified</span>
+                  <% elsif user_profile&.license_types.blank? %>
+                    <span class="badge bg-info text-dark">ℹ License not required</span>
+                  <% else %>
+                    <span class="badge bg-warning text-dark">⚠ Not Verified</span>
+                  <% end %>
+                <% else %>
+                  <span class="badge bg-secondary">—</span>
+                <% end %>
+              </td>
+
+              <!-- Ratings -->
+              <td>
+                <% avg_rating = user_profile.ratings.average(:score)&.round(2) %>
+                <% rating_count = user_profile.ratings.count %>
+
+                <% if rating_count > 0 %>
+                  Rating: <%= avg_rating %> ⭐ (<%= rating_count %> reviews)
+                <% else %>
+                  No reviews yet
+                <% end %>
+              </td>
+              <!-- Actions -->
+              <% if current_user == @listing.user && bid.pending? %>
+                <td class="text-end">
+                  <div class="btn-group btn-group-sm">
+                    <% if policy(bid).accept? %>
+                      <%= button_to "Accept",
+                                    accept_bid_path(bid),
+                                    method: :patch,
+                                    data: { turbo: false },
+                                    class: "btn btn-success",
+                                    form_class: "d-inline" %>
+                    <% end %>
+
+                    <% if policy(bid).reject? %>
+                      <%= button_to "Reject",
+                                  reject_bid_path(bid),
+                                  method: :patch,
+                                  data: { turbo: false },
+                                  class: "btn btn-outline-danger",
+                                  form_class: "d-inline" %>
+                    <% end %>
+
+                  </div>
+                </td>
+              <% elsif current_user == @listing.user %>
+                <td class="text-end text-muted">—</td>
+              <% end %>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="card-body text-center text-muted">
+        No bids yet. Providers will appear here once they submit offers.
+      </div>
+    <% end %>
+  </div>
+
+</div>

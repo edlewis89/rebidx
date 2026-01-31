@@ -1,0 +1,121 @@
+<!-- app/views/admin/listings/show.html.erb -->
+<div class="container mt-4">
+
+  <!-- Listing Header -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h2 class="fw-bold mb-1"><%= @listing.title %></h2>
+          <p class="text-muted mb-2"><%= @listing.description %></p>
+          <p><strong>Owner:</strong> <%= @listing.user.name || @listing.user.email %></p>
+          <p><strong>Budget:</strong> <%= number_to_currency(@listing.budget) %></p>
+
+          <span class="badge
+            <%= @listing.open? ? 'bg-secondary' :
+                                         @listing.awarded? ? 'bg-success' :
+                                           'bg-dark' %>">
+            <%= @listing.status.humanize %>
+          </span>
+        </div>
+
+        <div class="text-end">
+          <%= link_to "Edit Listing",
+                      edit_admin_listing_path(@listing),
+                      class: "btn btn-outline-warning mb-2" %>
+          <%= link_to "Back to Listings",
+                      admin_listings_path,
+                      class: "btn btn-outline-secondary mb-2 ms-2" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Services -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="fw-semibold">Services Required</h5>
+      <% if @listing.services.any? %>
+        <ul>
+          <% @listing.services.each do |service| %>
+            <li><%= service.name %></li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-muted">No services assigned.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Bids Section -->
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0 fw-semibold">Bids (<%= @bids.count %>)</h5>
+    </div>
+
+    <% if @bids.any? %>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+          <tr>
+            <th>Provider</th>
+            <th>Amount</th>
+            <th>Message</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+          </thead>
+
+          <tbody>
+          <% @bids.each do |bid| %>
+            <tr>
+              <td class="fw-semibold">
+                <%= bid.user.service_provider_profile&.business_name || bid.user.email %>
+              </td>
+
+              <td><%= number_to_currency(bid.amount) %></td>
+              <td class="text-muted"><%= bid.terms.presence || bid.message %></td>
+
+              <td>
+                  <span class="badge
+                    <%= bid.pending? ? 'bg-secondary' :
+                                                         bid.accepted? ? 'bg-success' :
+                                                           bid.rejected? ? 'bg-danger' : 'bg-dark' %>">
+                    <%= bid.status.humanize %>
+                  </span>
+              </td>
+
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <% if bid.pending? %>
+                    <%= button_to "Accept",
+                                  accept_bid_path(bid),
+                                  method: :patch,
+                                  data: { turbo: false },
+                                  class: "btn btn-success",
+                                  form_class: "d-inline" %>
+
+                    <%= button_to "Reject",
+                                  reject_bid_path(bid),
+                                  method: :patch,
+                                  data: { turbo: false },
+                                  class: "btn btn-outline-danger",
+                                  form_class: "d-inline" %>
+                  <% else %>
+                    <span class="text-muted">—</span>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="card-body text-center text-muted">
+        No bids have been placed yet.
+      </div>
+    <% end %>
+  </div>
+
+</div>

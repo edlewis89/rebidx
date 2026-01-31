@@ -1,0 +1,156 @@
+<div class="container mt-4">
+  <% if @listings_remaining %>
+    <% if @listings_remaining > 0 %>
+      <div class="alert alert-info d-flex justify-content-between align-items-center">
+        <span>You have <strong><%= @listings_remaining %></strong> listings remaining.</span>
+      </div>
+    <% else %>
+      <div class="alert alert-warning d-flex justify-content-between align-items-center">
+        <span>You have reached your listing limit for your current membership.</span>
+        <%= link_to "Upgrade Membership", memberships_path, class: "btn btn-sm btn-primary" %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">My Listings</h2>
+    <% gate = ::MembershipGate.new(current_user) %>
+    <% if gate.can_create_listing? %>
+      <%= link_to "Post a Listing",
+                  new_listing_path,
+                  data: { turbo: false },
+                  class: "btn btn-primary btn-sm mb-2" %>
+    <% end %>
+  </div>
+
+  <% if @listings.any? %>
+    <table class="table table-hover align-middle">
+      <thead class="table-dark">
+      <tr>
+        <th>Title</th>
+        <th>Services</th>
+        <th>Status</th>
+        <th>Bids</th>
+        <th>Winning Bid</th>
+        <th>Budget</th>
+        <th class="text-end">Actions</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <% @listings.each do |listing| %>
+        <tr>
+          <!-- Listing Title -->
+          <td>
+            <%= link_to listing.title,
+                        listing_path(listing),
+                        class: "fw-semibold text-decoration-none" %>
+          </td>
+
+          <!-- Services -->
+          <td>
+            <%= listing.services.map(&:name).join(", ") %>
+          </td>
+
+          <!-- Status Badge -->
+          <td>
+           <span class="badge <%= listing_badge_class(listing) %>">
+            <%= listing_badge_label(listing) %>
+          </span>
+          </td>
+
+          <!-- Number of Bids -->
+          <td>
+            <span class="badge bg-info">
+              <%= listing.bids.count %>
+            </span>
+          </td>
+
+          <!-- Winning Bid -->
+          <td>
+            <% winning_bid = listing.winning_bid %>
+
+            <% if winning_bid.present? %>
+              <div class="fw-semibold text-success">
+                🏆 <%= winning_bid.user.service_provider_profile&.business_name || winning_bid.user.email %>
+              </div>
+              <div class="text-muted small">
+                <%= number_to_currency(winning_bid.amount) %>
+              </div>
+              <div class="mt-1">
+                <span class="badge <%= bid_badge_class(winning_bid) %>">
+                  <%= bid_badge_label(winning_bid) %>
+                </span>
+              </div>
+
+              <%# Show Rate Provider if listing completed and not rated %>
+              <%= turbo_frame_tag "rating_#{winning_bid.id}" do %>
+                <% if listing.complete? && winning_bid.rating.nil? %>
+                  <%= link_to "Rate Provider",
+                              new_bid_ratings_path(winning_bid),
+                              class: "btn btn-sm btn-outline-primary mt-1" %>
+                <% elsif winning_bid.rating.present? %>
+                  <span class="text-success small mt-1 d-block">
+                    Rated: <%= winning_bid.rating.score %> ⭐
+                  </span>
+                <% end %>
+              <% end %>
+
+            <% else %>
+              <span class="text-muted">—</span>
+            <% end %>
+          </td>
+
+          <!-- Budget -->
+          <td><%= number_to_currency(listing.budget) %></td>
+
+          <!-- Actions -->
+          <td class="text-end">
+            <div class="btn-group btn-group-sm" role="group">
+
+              <!-- View -->
+              <%= link_to "View",
+                          listing_path(listing),
+                          class: "btn btn-sm btn-outline-primary" %>
+
+              <!-- Edit (only if open and owner) -->
+              <% if listing.editable? && current_user == listing.user %>
+                <%= link_to "Edit",
+                            edit_listing_path(listing),
+                            class: "btn btn-sm btn-outline-warning" %>
+
+                <%= link_to "Delete",
+                            listing_path(listing),
+                            method: :delete,
+                            data: { confirm: "Are you sure you want to delete this listing?" },
+                            class: "btn btn-sm btn-outline-danger" %>
+              <% end %>
+              <% if winning_bid.present? && winning_bid.awarded? && !winning_bid.complete? && current_user.homeowner? %>
+                <%= button_to "Mark Complete",
+                              complete_bid_path(winning_bid),
+                              method: :patch,
+                              data: { confirm: "Are you sure the work is completed?" },
+                              class: "btn btn-sm btn-outline-success mt-1" %>
+              <% end %>
+
+            </div>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <div class="alert alert-light border text-center p-4">
+      <h5 class="mb-2">No listings yet</h5>
+      <p class="text-muted mb-3">
+        Post a listing to start receiving bids from service providers.
+      </p>
+      <%= link_to "Post Your First Listing",
+                  new_listing_path,
+                  class: "btn btn-primary" %>
+    </div>
+  <% end %>
+
+
+</div>

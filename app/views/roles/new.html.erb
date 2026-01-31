@@ -1,0 +1,15 @@
+<h2>How do you want to use Rebidx?</h2>
+
+<%= form_with url: choose_role_path, method: :post do %>
+  <div class="d-grid gap-3">
+    <%= button_tag "Post jobs for my property",
+                   name: :role,
+                   value: "homeowner",
+                   class: "btn btn-primary btn-lg" %>
+
+    <%= button_tag "Offer services & bid on jobs",
+                   name: :role,
+                   value: "service_provider",
+                   class: "btn btn-outline-primary btn-lg" %>
+  </div>
+<% end %>

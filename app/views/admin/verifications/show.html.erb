@@ -1,0 +1,113 @@
+<div class="container mt-4">
+
+  <div class="d-flex justify-content-between mb-3">
+    <h2 class="fw-bold">
+      Verification Review —
+      <%= @profile.user.email %>
+    </h2>
+
+    <%= link_to "Back", admin_verifications_path, class: "btn btn-outline-secondary" %>
+  </div>
+
+  <!-- Status Card -->
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="row">
+
+        <div class="col-md-3">
+          <strong>Status:</strong>
+          <span class="badge bg-<%= status_color(@profile.status) %>">
+            <%= @profile.status.titleize %>
+          </span>
+        </div>
+
+        <div class="col-md-3">
+          <strong>Trust Score:</strong>
+          <%= @profile.trust_score || 0 %>
+        </div>
+
+        <div class="col-md-3">
+          <strong>Checks Passed:</strong>
+          <%= @profile.verification_checks.passed.count %>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Verification Checks -->
+  <div class="card mb-4">
+    <div class="card-header fw-bold">
+      Verification Checks
+    </div>
+
+    <div class="list-group list-group-flush">
+      <% @profile.verification_checks.each do |check| %>
+        <div class="list-group-item">
+
+          <div class="d-flex justify-content-between">
+
+            <div>
+              <strong><%= check.kind.titleize %></strong>
+              <div class="text-muted small">
+                Provider: <%= check.provider || "internal" %>
+              </div>
+            </div>
+
+            <span class="badge bg-<%= status_color(check.status) %>">
+              <%= check.status.titleize %>
+            </span>
+
+          </div>
+
+          <% if check.data.present? %>
+            <pre class="bg-light p-2 mt-2 small rounded">
+<%= JSON.pretty_generate(check.data) rescue check.data %>
+            </pre>
+          <% end %>
+
+          <% if check.documents.attached? %>
+            <div class="mt-2">
+              <strong>Documents</strong>
+              <ul class="mt-1">
+                <% check.documents.each do |doc| %>
+                  <li>
+                    <%= link_to doc.filename, rails_blob_path(doc, disposition: "attachment") %>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Admin Actions -->
+  <div class="card">
+    <div class="card-header fw-bold">
+      Admin Actions
+    </div>
+
+    <div class="card-body d-flex gap-2">
+
+      <%= button_to "Approve Verification",
+                    admin_verification_path(@profile, status: "verified"),
+                    method: :patch,
+                    class: "btn btn-success" %>
+
+      <%= button_to "Reject Verification",
+                    admin_verification_path(@profile, status: "rejected"),
+                    method: :patch,
+                    class: "btn btn-danger" %>
+
+      <%= button_to "Mark Pending",
+                    admin_verification_path(@profile, status: "pending"),
+                    method: :patch,
+                    class: "btn btn-warning" %>
+
+    </div>
+  </div>
+
+</div>

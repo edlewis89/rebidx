@@ -1,0 +1,62 @@
+<div class="d-flex flex-column bg-light p-3" style="width: 220px; min-height: 100vh;">
+  <h5>Menu</h5>
+  <hr>
+
+  <% if user_signed_in? %>
+
+    <% if current_user.service_provider? || current_user.unlicensed_provider? %>
+      <%= link_to "Dashboard",
+                  provider_dashboard_path,
+                  data: { turbo: false },
+                  class: "nav-link mb-2" %>
+
+      <%= link_to "My Bids",
+                  provider_dashboard_path(anchor: "my-bids"),
+                  data: { turbo: false },
+                  class: "nav-link mb-2" %>
+
+      <%= link_to "My Profile",
+                  edit_profile_path,
+                  data: { turbo: false },
+                  class: "nav-link" %>
+
+    <% elsif current_user.homeowner? %>
+      <%= link_to "Dashboard",
+                  homeowner_dashboard_path,
+                  data: { turbo: false },
+                  class: "nav-link mb-2" %>
+
+        <% gate = ::MembershipGate.new(current_user) %>
+        <% if gate.can_create_listing? %>
+          <%= link_to "Post a Listing",
+                      new_listing_path,
+                      data: { turbo: false },
+                      class: "btn btn-primary btn-sm mb-2" %>
+       <% end %>
+       <%= link_to "My Listings",
+                  homeowner_dashboard_path(anchor: "my-listings"),
+                  data: { turbo: false },
+                  class: "nav-link mb-2" %>
+
+    <% end %>
+
+    <hr class="mt-auto">
+
+    <%= button_to "Logout",
+                  destroy_user_session_path,
+                  method: :delete,
+                  data: { turbo: false },
+                  class: "nav-link text-danger" %>
+
+  <% else %>
+
+    <%= link_to "Sign In",
+                new_user_session_path,
+                class: "nav-link mb-2" %>
+
+    <%= link_to "Sign Up",
+                new_user_registration_path,
+                class: "btn btn-outline-primary btn-sm" %>
+
+  <% end %>
+</div>

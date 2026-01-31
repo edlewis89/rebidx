@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  service_provider_profile: one
+  license_type: one
+  license_number: MyString
+  state: MyString
+  expires_on: 2026-01-28
+
+two:
+  service_provider_profile: two
+  license_type: two
+  license_number: MyString
+  state: MyString
+  expires_on: 2026-01-28

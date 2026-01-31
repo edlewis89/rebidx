@@ -1,0 +1,41 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2>Advertisements</h2>
+  <%= link_to "New Advertisement", new_admin_advertisement_path, class: "btn btn-success" %>
+</div>
+
+<table class="table table-hover align-middle">
+  <thead>
+  <tr>
+    <th>Title</th>
+    <th>Placement</th>
+    <th>Active</th>
+    <th>Created At</th>
+    <th>Actions</th>
+  </tr>
+  </thead>
+  <tbody>
+  <% @advertisements.each do |ad| %>
+    <tr>
+      <td><%= ad.title %></td>
+      <td><%= ad.placement.titleize %></td>
+      <td>
+        <% if ad.active? %>
+          <span class="badge bg-success">Active</span>
+        <% else %>
+          <span class="badge bg-secondary">Inactive</span>
+        <% end %>
+      </td>
+      <td><%= ad.created_at.strftime("%b %d, %Y") %></td>
+      <td>
+        <%= link_to "Edit", edit_admin_advertisement_path(ad), class: "btn btn-sm btn-primary" %>
+        <%= link_to "Delete", admin_advertisement_path(ad),
+                    method: :delete,
+                    data: { turb: false },
+                    class: "btn btn-sm btn-danger" %>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
+
+

@@ -1,0 +1,33 @@
+<!-- app/views/admin/ads/new.html.erb -->
+
+<h2>New Advertisement</h2>
+
+<%= form_with model: @advertisement, url: admin_advertisements_path, local: true do |f| %>
+  <div class="mb-3">
+    <%= f.label :placement, "Ad Placement" %>
+    <%= f.select :placement, Advertisement.placements.keys.map { |p| [p.titleize, p] },
+                 {}, class: "form-select", required: true %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :title, "Ad Title" %>
+    <%= f.text_field :title, class: "form-control", required: true %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :image, "Ad Image" %>
+    <%= f.file_field :image, class: "form-control", required: true %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :link, "Ad URL" %>
+    <%= f.url_field :link, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :active, "Active?" %>
+    <%= f.check_box :active %>
+  </div>
+
+  <%= f.submit "Create Advertisement", class: "btn btn-primary" %>
+<% end %>

@@ -1,0 +1,26 @@
+<!-- Main Section Advertisements -->
+<div class="mb-4 advertisements">
+  <% Advertisement.active.by_placement(:homepage).each do |ad| %>
+    <div class="card mb-3 shadow-sm">
+      <% if ad.link.present? %>
+        <%= link_to ad.link, target: "_blank", rel: "noopener" do %>
+          <% if ad.image.attached? %>
+            <%= image_tag ad.image.variant(resize_to_limit: [800, 200]), class: "card-img-top" %>
+          <% else %>
+            <div class="card-body text-center">
+              <h5 class="card-title"><%= ad.title %></h5>
+            </div>
+          <% end %>
+        <% end %>
+      <% else %>
+        <% if ad.image.attached? %>
+          <%= image_tag ad.image.variant(resize_to_limit: [800, 200]), class: "card-img-top" %>
+        <% else %>
+          <div class="card-body text-center">
+            <h5 class="card-title"><%= ad.title %></h5>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

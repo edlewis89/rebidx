@@ -16,6 +16,35 @@
       <% end %>
     <% end %>
 
+    <p class="text-muted small">
+      Ads loaded: <%= Advertisement.active.navbar.count %>
+    </p>
+    <div class="advertisements">
+      <% Advertisement.active.navbar.each do |ad| %>
+        <div class="card mb-3 shadow-sm" style="width: 100%;">
+          <% if ad.link.present? %>
+            <%= link_to ad.link, target: "_blank", rel: "noopener" do %>
+              <% if ad.image.attached? %>
+                <%= image_tag ad.image.variant(resize_to_limit: [250, 150]), class: "card-img-top" %>
+              <% else %>
+                <div class="card-body">
+                  <h5 class="card-title"><%= ad.title %></h5>
+                </div>
+              <% end %>
+            <% end %>
+          <% else %>
+            <% if ad.image.attached? %>
+              <%= image_tag ad.image.variant(resize_to_limit: [250, 150]), class: "card-img-top" %>
+            <% else %>
+              <div class="card-body">
+                <h5 class="card-title"><%= ad.title %></h5>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto align-items-center">
         <% if user_signed_in? %>

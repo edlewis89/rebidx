@@ -42,6 +42,7 @@ Rails.application.routes.draw do
     resources :verifications, only: [:index, :show, :update]
     resources :listings
     resources :license_types
+    resources :advertisements
     resources :service_provider_profiles, only: [:index] do
       patch :verify, on: :member
     end

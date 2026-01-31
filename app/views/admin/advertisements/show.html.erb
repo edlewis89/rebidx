@@ -1,0 +1,62 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Advertisement Preview</h2>
+
+    <div>
+      <%= link_to "Edit", edit_admin_advertisement_path(@advertisement), class: "btn btn-primary btn-sm" %>
+      <%= link_to "Back", admin_advertisements_path, class: "btn btn-secondary btn-sm" %>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+
+      <p><strong>Title:</strong> <%= @advertisement.title %></p>
+
+      <p><strong>Placement:</strong>
+        <span class="badge bg-info">
+          <%= @advertisement.placement.titleize %>
+        </span>
+      </p>
+
+      <p><strong>Status:</strong>
+        <% if @advertisement.active? %>
+          <span class="badge bg-success">Active</span>
+        <% else %>
+          <span class="badge bg-secondary">Inactive</span>
+        <% end %>
+      </p>
+
+      <p><strong>Link:</strong>
+        <% if @advertisement.link.present? %>
+          <%= link_to @advertisement.link, @advertisement.link, target: "_blank" %>
+        <% else %>
+          None
+        <% end %>
+      </p>
+
+      <hr>
+
+      <h5 class="mb-3">Live Preview</h5>
+
+      <div class="border p-3 rounded bg-light" style="max-width: 320px;">
+        <% if @advertisement.link.present? %>
+          <%= link_to @advertisement.link, target: "_blank" do %>
+            <% if @advertisement.image.attached? %>
+              <%= image_tag @advertisement.image.variant(resize_to_limit: [300, 180]), class: "img-fluid rounded mb-2" %>
+            <% else %>
+              <h5><%= @advertisement.title %></h5>
+            <% end %>
+          <% end %>
+        <% else %>
+          <% if @advertisement.image.attached? %>
+            <%= image_tag @advertisement.image.variant(resize_to_limit: [300, 180]), class: "img-fluid rounded mb-2" %>
+          <% else %>
+            <h5><%= @advertisement.title %></h5>
+          <% end %>
+        <% end %>
+      </div>
+
+    </div>
+  </div>
+</div>

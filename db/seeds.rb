@@ -28,21 +28,53 @@ puts "🌱 Seeding data..."
 # ===============================
 # MEMBERSHIPS
 # ===============================
+# features: {
+#   max_listings: 5,
+#   max_bids_per_month: 5,
+#   messaging: false,
+#   can_bid_high_value: false,
+#   requires_verification: true,
+#   show_ads: true,
+#   featured_listings: false
+# }
 Membership.create!([
                      {
                        name: "Free",
                        price_cents: 0,
-                       features: { max_listings: 5, max_bids_per_month: 5, messaging: false }
+                       features: {
+                         max_listings: 5,
+                         max_bids_per_month: 5,
+                         messaging: false,
+                         can_bid_high_value: false,
+                         requires_verification: true,
+                         show_ads: true
+                       }
                      },
                      {
                        name: "Pro",
                        price_cents: 2900,
-                       features: { max_listings: 10, max_bids_per_month: 20, messaging: true, featured_listings: true }
+                       features: {
+                         max_listings: 10,
+                         max_bids_per_month: 20,
+                         messaging: true,
+                         can_bid_high_value: true,
+                         requires_verification: false,
+                         featured_listings: true,
+                         show_ads: false
+                       }
                      },
                      {
                        name: "Elite",
                        price_cents: 9900,
-                       features: { max_listings: 999, max_bids_per_month: 999, priority_support: true, messaging: true }
+                       features: {
+                         max_listings: 999,
+                         max_bids_per_month: 999,
+                         messaging: true,
+                         can_bid_high_value: true,
+                         priority_support: true,
+                         featured_listings: true,
+                         show_ads: false
+                       }
                      }
                    ])
 puts "✅ Memberships seeded"

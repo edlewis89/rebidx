@@ -10,8 +10,7 @@ class ListingPolicy < ApplicationPolicy
   end
 
   def create?
-    return false unless user.present?
-    ::MembershipGate.new(user).can_create_listing?
+    AccessGate.new(user).can_create_listing?
   end
 
   def edit?

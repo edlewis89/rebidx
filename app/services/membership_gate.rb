@@ -14,28 +14,44 @@ class MembershipGate
     @membership.features[feature.to_s].to_i
   end
 
-  # Calculates how many listings the user can still create
+  # ---- Listings ----
   def listings_remaining
     remaining = limit(:max_listings) - Listing.where(user: @user).count
     remaining.positive? ? remaining : 0
   end
 
-  # Boolean check if user can create a new listing
   def can_create_listing?
     Listing.where(user: @user).count < limit(:max_listings)
   end
 
-  # ✅ New method: can the user place a bid?
+  # ---- Bids ----
   def bids_remaining
-    return 0 unless @membership
-    # Count bids placed in current month
-    #
     remaining = limit(:max_bids_per_month) - current_month_bids_count
     remaining.positive? ? remaining : 0
   end
 
   def can_bid?
     bids_remaining > 0
+  end
+
+  # ---- High Value Jobs ----
+  def can_bid_high_value?
+    allowed?(:can_bid_high_value)
+  end
+
+  # ---- Messaging ----
+  def messaging_enabled?
+    allowed?(:messaging)
+  end
+
+  # ---- Ads ----
+  def show_ads?
+    allowed?(:show_ads)
+  end
+
+  # ---- Verification ----
+  def requires_verification?
+    allowed?(:requires_verification)
   end
 
   private

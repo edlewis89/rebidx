@@ -113,7 +113,9 @@ class BidsController < ApplicationController
   def ensure_verified_provider
     return unless current_user.service_provider? || current_user.unlicensed_provider?
 
-    unless current_user.can_bid_on?(@listing)
+    gate = AccessGate.new(current_user)
+
+    unless gate.can_bid_on?(@listing)
       redirect_to provider_dashboard_path,
                   alert: "You are not allowed to bid on this listing."
     end

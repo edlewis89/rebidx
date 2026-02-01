@@ -5,12 +5,12 @@
     <p class="text-muted small">
       Ads loaded: <%= Advertisement.active.dashboard_sidebar.count %>
     </p>
-    <% Advertisement.active.dashboard_sidebar.each do |ad| %>
+    <% Advertisement.active.by_placement(:dashboard_sidebar).each do |ad| %>
       <div class="card mb-3 shadow-sm" style="width: 100%;">
         <% if ad.link.present? %>
           <%= link_to ad.link, target: "_blank", rel: "noopener" do %>
             <% if ad.image.attached? %>
-              <%= image_tag ad.image.variant(resize_to_limit: [250, 150]), class: "card-img-top" %>
+              <%= image_tag ad.image, class: "card-img-top" %>
             <% else %>
               <div class="card-body">
                 <h5 class="card-title"><%= ad.title %></h5>
@@ -19,7 +19,7 @@
           <% end %>
         <% else %>
           <% if ad.image.attached? %>
-            <%= image_tag ad.image.variant(resize_to_limit: [250, 150]), class: "card-img-top" %>
+            <%= image_tag ad.image, class: "card-img-top" %>
           <% else %>
             <div class="card-body">
               <h5 class="card-title"><%= ad.title %></h5>

@@ -1,22 +1,22 @@
-<!-- Main Section Advertisements -->
-<div class="mb-4 advertisements">
+<!-- Advertisements Section -->
+<div class="advertisements mb-4">
   <% Advertisement.active.by_placement(:homepage).each do |ad| %>
-    <div class="card mb-3 shadow-sm">
+    <div class="card mb-3 shadow-sm" style="width: 100%;">
       <% if ad.link.present? %>
         <%= link_to ad.link, target: "_blank", rel: "noopener" do %>
           <% if ad.image.attached? %>
-            <%= image_tag ad.image.variant(resize_to_limit: [800, 200]), class: "card-img-top" %>
+            <%= image_tag ad.image, class: "card-img-top" %>
           <% else %>
-            <div class="card-body text-center">
+            <div class="card-body">
               <h5 class="card-title"><%= ad.title %></h5>
             </div>
           <% end %>
         <% end %>
       <% else %>
         <% if ad.image.attached? %>
-          <%= image_tag ad.image.variant(resize_to_limit: [800, 200]), class: "card-img-top" %>
+          <%= image_tag ad.image, class: "card-img-top" %>
         <% else %>
-          <div class="card-body text-center">
+          <div class="card-body">
             <h5 class="card-title"><%= ad.title %></h5>
           </div>
         <% end %>

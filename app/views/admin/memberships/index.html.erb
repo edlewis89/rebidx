@@ -1,0 +1,51 @@
+<%# app/views/admin/memberships/index.html.erb %>
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Memberships</h2>
+    <%= link_to "New Membership", new_admin_membership_path, class: "btn btn-primary" %>
+  </div>
+
+  <% if @memberships.any? %>
+    <table class="table table-striped">
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th>Price ($)</th>
+        <% Membership::FEATURE_KEYS.each do |key| %>
+          <th><%= key.to_s.humanize %></th>
+        <% end %>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <% @memberships.each do |membership| %>
+        <tr>
+          <td><%= membership.name %></td>
+          <td><%= number_to_currency(membership.price_cents.to_f / 100) %></td>
+
+          <% Membership::FEATURE_KEYS.each do |key| %>
+            <% value = membership.features[key.to_s] %>
+            <td>
+              <%# Display boolean as Yes/No, numeric as number %>
+              <%= if value == true
+                    "Yes"
+                  elsif value == false
+                    "No"
+                  else
+                    value || 0
+                  end %>
+            </td>
+          <% end %>
+
+          <td>
+            <%= link_to "Edit", edit_admin_membership_path(membership), class: "btn btn-sm btn-warning me-2" %>
+            <%= link_to "Delete", admin_membership_path(membership), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-sm btn-danger" %>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p>No memberships found.</p>
+  <% end %>
+</div>

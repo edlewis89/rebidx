@@ -1,0 +1,13 @@
+<%# app/views/admin/memberships/edit.html.erb %>
+<div class="container mt-4">
+  <h2>Edit Membership: <%= @membership.name %></h2>
+
+  <%= form_with model: [:admin, @membership], local: true do |f| %>
+    <%= render "form", f: f %>
+
+    <div class="mt-3">
+      <%= f.submit "Update Membership", class: "btn btn-primary" %>
+      <%= link_to "Back", admin_memberships_path, class: "btn btn-secondary ms-2" %>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,33 @@
+<%# app/views/admin/memberships/_form.html.erb %>
+
+<!-- Membership Name -->
+<div class="mb-3">
+  <%= f.label :name, "Membership Name", class: "form-label" %>
+  <%= f.text_field :name, class: "form-control", required: true %>
+</div>
+
+<!-- Membership Price -->
+<div class="mb-3">
+  <%= f.label :price_cents, "Price ($)", class: "form-label" %>
+  <%= f.number_field :price_cents, value: (f.object.price_cents.to_f / 100), step: 0.01, class: "form-control", required: true %>
+</div>
+
+<!-- Features -->
+<h4>Features</h4>
+<% Membership::FEATURE_KEYS.each do |key| %>
+  <% value = f.object.features[key.to_s] %>
+  <% type = Membership::FEATURE_TYPES[key] %>
+
+  <div class="mb-3">
+    <% if type == :boolean %>
+      <div class="form-check">
+        <%= f.check_box "features[#{key}]", { class: "form-check-input" }, true, false %>
+        <%= f.label "features_#{key}", key.to_s.humanize, class: "form-check-label" %>
+      </div>
+    <% else %>
+      <%= f.label "features_#{key}", key.to_s.humanize, class: "form-label" %>
+      <%= f.number_field "features[#{key}]", value: (value || 0), class: "form-control", min: 0 %>
+    <% end %>
+  </div>
+<% end %>
+

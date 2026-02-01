@@ -37,6 +37,10 @@ module Admin
 
   # PATCH/PUT /admin/advertisements/:id
   def update
+    if params[:advertisement][:remove_image] == "1"
+      @advertisement.image.purge
+    end
+    
     if @advertisement.update(advertisement_params)
       redirect_to admin_advertisements_path, notice: "Advertisement updated successfully."
     else

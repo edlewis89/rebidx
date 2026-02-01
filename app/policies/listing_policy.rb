@@ -10,6 +10,8 @@ class ListingPolicy < ApplicationPolicy
   end
 
   def create?
+    binding.pry
+    return false unless user.present?
     AccessGate.new(user).can_create_listing?
   end
 

@@ -11,7 +11,7 @@
     <%= link_to "Post New Listing", new_listing_path, class: "btn btn-primary mb-3" %>
   <% end %>
 
-  <% if @listings.any? %>
+  <% if @listings&.any? %>
     <table class="table table-striped">
       <thead class="table-dark">
       <tr>

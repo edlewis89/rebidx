@@ -30,7 +30,7 @@ class BidPolicy < ApplicationPolicy
   end
 
   def can_bid?
-    AccessGate.new(user).can_bid?
+    AccessGate.new(user).can_bid_on?(record.listing)
   end
 
   class Scope < Scope

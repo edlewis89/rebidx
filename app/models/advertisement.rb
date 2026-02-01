@@ -1,5 +1,7 @@
 class Advertisement < ApplicationRecord
-  has_one_attached :image # if you want image uploads
+  has_one_attached :image do |attachable|
+    attachable.variant :thumb, resize_to_limit: [250, 150], processor: :mini_magick
+  end
   validates :title, :placement, presence: true
   enum placement: { dashboard_sidebar: 0, navbar: 1, homepage: 2, flash_message: 3 } # integer-backed
 

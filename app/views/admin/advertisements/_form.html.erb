@@ -17,6 +17,11 @@
 
   <div class="mb-3">
     <%= f.label :image, "Image", class: "form-label" %>
+    <% if advertisement.image.attached? %>
+      <div class="mb-2">
+        <%= image_tag advertisement.image.variant(resize_to_limit: [300, 150]), class: "img-thumbnail" %>
+      </div>
+    <% end %>
     <%= f.file_field :image, class: "form-control" %>
   </div>
 

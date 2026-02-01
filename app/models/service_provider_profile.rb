@@ -7,10 +7,18 @@ class ServiceProviderProfile < ApplicationRecord
   has_many :license_types, through: :service_provider_licenses
   has_many :ratings
 
-  has_one_attached :license
-  has_one_attached :government_id
-  has_one_attached :business_license_file
-  has_one_attached :tax_document
+  has_one_attached :license do |attachable|
+    attachable.variant :thumb, resize_to_limit: [250, 150], processor: :mini_magick
+  end
+  has_one_attached :government_id do |attachable|
+    attachable.variant :thumb, resize_to_limit: [250, 150], processor: :mini_magick
+  end
+  has_one_attached :business_license_file do |attachable|
+    attachable.variant :thumb, resize_to_limit: [250, 150], processor: :mini_magick
+  end
+  has_one_attached :tax_document do |attachable|
+    attachable.variant :thumb, resize_to_limit: [250, 150], processor: :mini_magick
+  end
 
   validates :business_name, :full_name, presence: true
   validates :tax_id, presence: true, if: -> { license_types.any?(&:requires_verification?) }

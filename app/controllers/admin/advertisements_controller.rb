@@ -1,4 +1,5 @@
-class Admin::AdvertisementsController < ApplicationController
+module Admin
+  class AdvertisementsController < BaseController
   before_action :authenticate_user!
   before_action :require_admin!
   before_action :set_advertisement, only: [:edit, :update, :destroy]
@@ -68,5 +69,6 @@ class Admin::AdvertisementsController < ApplicationController
       :link,
       :active
     )
+  end
   end
 end

@@ -10,7 +10,6 @@ module Admin
     end
 
     def verify
-      puts "VERIFY >>>>>>>>> ID: #{params[:id]}"
       @profile = ServiceProviderProfile.find(params[:id])
       @profile.update!(verified: true, verification_status: "verified")
 

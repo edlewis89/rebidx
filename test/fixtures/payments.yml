@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  membership: one
+  listing: one
+  amount_cents: 1
+  currency: MyString
+  stripe_payment_id: MyString
+  status: MyString
+
+two:
+  user: two
+  membership: two
+  listing: two
+  amount_cents: 1
+  currency: MyString
+  stripe_payment_id: MyString
+  status: MyString

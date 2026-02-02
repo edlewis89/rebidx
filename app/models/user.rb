@@ -13,6 +13,7 @@ class User < ApplicationRecord
   has_many :bids
   has_many :listings
   has_many :properties
+  has_many :payments, dependent: :destroy
   has_many :ratings_given, class_name: "Rating"
 
   enum role: {
@@ -21,6 +22,11 @@ class User < ApplicationRecord
     service_provider: 2,
     rebidx_admin: 3
   }
+
+  # Stripe Connect account ID for providers
+  # This allows payouts to providers
+  # Example: "acct_123456789"
+  attribute :stripe_account_id, :string
 
   # ---- Role Helpers ----
   def service_provider?
@@ -108,5 +114,15 @@ class User < ApplicationRecord
 
   def unlicensed_provider?
     service_provider? && service_provider_profile&.license_types.blank?
+  end
+
+  # Return the allowed bid range [low, high] from current membership
+  # Returns the allowed bid range [min, max] from the current membership features
+  def bid_range
+    # fallback if no membership or feature missing
+    default_range = { "low" => 0, "high" => 1_000 }
+
+    features_range = membership&.features&.dig("bid_range") || default_range
+    [features_range["low"].to_f, features_range["high"].to_f]
   end
 end

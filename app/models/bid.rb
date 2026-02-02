@@ -28,7 +28,7 @@ class Bid < ApplicationRecord
   validates :status, inclusion: { in: %w[pending awarded rejected withdrawn complete] }
 
   # validate :handyman_budget_limit
-  validate :bid_within_provider_limit
+  validate :bid_within_membership_range
 
   # validates :terms, presence: true
   # Only allow providers to bid once per listing
@@ -57,11 +57,14 @@ class Bid < ApplicationRecord
     end
   end
 
-  def bid_within_provider_limit
-    profile = user.service_provider_profile
-    max_budget = profile&.max_project_budget || 1_000
-    if amount.to_f > max_budget
-      errors.add(:amount, "exceeds your max allowed bid of $#{max_budget}")
+  def bid_within_membership_range
+    return unless user&.membership && listing
+
+    range = user.membership.features["bid_range"] || { "low" => 0, "high" => 1_000 }
+    high = range["high"].to_f
+
+    if amount.to_f > high
+      errors.add(:amount, "exceeds your max allowed bid of $#{high}")
     end
   end
 

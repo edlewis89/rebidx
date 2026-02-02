@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_01_31_205635) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_01_222738) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -122,6 +122,21 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_31_205635) do
     t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
+  create_table "payments", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "membership_id", null: false
+    t.bigint "listing_id"
+    t.integer "amount_cents"
+    t.string "currency"
+    t.string "stripe_payment_id"
+    t.string "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["listing_id"], name: "index_payments_on_listing_id"
+    t.index ["membership_id"], name: "index_payments_on_membership_id"
+    t.index ["user_id"], name: "index_payments_on_user_id"
+  end
+
   create_table "properties", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "title"
@@ -215,6 +230,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_31_205635) do
     t.datetime "remember_created_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "stripe_account_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
@@ -250,6 +266,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_31_205635) do
   add_foreign_key "listings", "properties"
   add_foreign_key "listings", "users"
   add_foreign_key "notifications", "users"
+  add_foreign_key "payments", "listings"
+  add_foreign_key "payments", "memberships"
+  add_foreign_key "payments", "users"
   add_foreign_key "properties", "users"
   add_foreign_key "provider_services", "service_provider_profiles"
   add_foreign_key "provider_services", "services"

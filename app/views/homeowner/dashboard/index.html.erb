@@ -1,21 +1,30 @@
 <div class="container mt-4">
-  <% if @listings_remaining %>
-    <% if @listings_remaining > 0 %>
-      <div class="alert alert-info d-flex justify-content-between align-items-center">
-        <span>You have <strong><%= @listings_remaining %></strong> listings remaining.</span>
-      </div>
-    <% else %>
-      <div class="alert alert-warning d-flex justify-content-between align-items-center">
-        <span>You have reached your listing limit for your current membership.</span>
-        <%= link_to "Upgrade Membership", memberships_path, class: "btn btn-sm btn-primary" %>
-      </div>
-    <% end %>
+  <% if @listings_remaining && @listings_remaining <= 0 %>
+    <div class="alert alert-warning d-flex justify-content-between align-items-center">
+      <span>You have reached your monthly listing limit for your current membership.</span>
+      <% gate = AccessGate.new(current_user) %>
+
+      <% if @upgrade_membership %>
+        <% if gate.can_create_listing? %>
+          <%= link_to "Post a Listing",
+                      new_listing_path,
+                      data: { turbo: false },
+                      class: "btn btn-primary btn-sm mb-2" %>
+        <% else %>
+          <%= link_to "Compare Plans & Upgrade",
+                      memberships_path,
+                      class: "btn btn-warning btn-sm mb-2 fw-semibold" %>
+        <% end %>
+      <% else %>
+        <span class="text-muted small">No higher tiers available</span>
+      <% end %>
+    </div>
   <% end %>
 
   <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="fw-bold mb-0">My Listings</h2>
-    <% gate = ::MembershipGate.new(current_user) %>
+    <% gate = AccessGate.new(current_user) %>
     <% if gate.can_create_listing? %>
       <%= link_to "Post a Listing",
                   new_listing_path,

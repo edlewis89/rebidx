@@ -12,43 +12,40 @@
       <%= current_user.bids.complete.joins(:rating).average('ratings.score')&.round(2) || "—" %> ⭐
     </p>
 
-    <p>
-      Remaining Bids this Month:
-      <strong><%= @bids_remaining %></strong>
-      <% if @bids_remaining.zero? %>
-        <span class="text-danger">(Upgrade membership to place more bids)</span>
-      <% end %>
-    </p>
-
+    <% gate = AccessGate.new(current_user) %>
     <% profile = current_user.service_provider_profile %>
-    <% gate = MembershipGate.new(current_user) %>
 
+    <!-- Bid Limit Alert -->
+    <% if @bids_remaining && @bids_remaining > 0 %>
+      <div class="alert alert-info">
+        You have <strong><%= @bids_remaining %></strong> bids remaining this month.
+      </div>
+    <% elsif @bids_remaining == 0 %>
+      <div class="alert alert-warning d-flex justify-content-between align-items-center">
+        <span>You’ve hit your monthly bid limit.</span>
+        <%= link_to "Upgrade Provider Plan", provider_memberships_path, class: "btn btn-sm btn-primary" %>
+      </div>
+    <% end %>
+
+    <!-- Verification Status -->
     <% if current_user.verified_provider? %>
       <div class="alert alert-success">
         ✅ Your account is verified. You can place bids on any listings.
       </div>
 
-    <% elsif profile&.verification_status == "not_required" || gate.can_bid? %>
-      <div class="alert alert-info">
-        ℹ️ Your account can place bids.
-        <% if profile && !current_user.verified_provider? && profile.verification_status != "not_required" %>
-          Note: High-value listings may require verification.
-        <% end %>
-      </div>
-
     <% elsif profile&.verification_status == "pending" %>
       <div class="alert alert-warning">
-        ⏳ Your verification is under review. You will be notified once approved.
+        ⏳ Your verification is under review.
       </div>
 
     <% elsif profile&.verification_status == "rejected" %>
       <div class="alert alert-danger">
-        ❌ Your verification was not approved. Please update your profile and resubmit.
+        ❌ Verification was rejected. Please resubmit.
       </div>
 
     <% else %>
       <div class="alert alert-secondary">
-        🔒 Your account is not yet eligible to place bids. Verification and license upload are required for high-value jobs.
+        🔒 Verification required for high-value jobs.
       </div>
     <% end %>
   </div>
@@ -71,48 +68,67 @@
             <th class="text-end">Action</th>
           </tr>
           </thead>
+
           <tbody>
           <% @available_listings.each do |listing| %>
             <% my_bid = listing.bids.find_by(user: current_user) %>
 
             <tr>
+              <!-- Listing -->
               <td class="fw-semibold">
-                <%= link_to listing.title, listing_path(listing), class: "text-decoration-none", data: { turbo: false } %>
+                <%= link_to listing.title,
+                            listing_path(listing),
+                            class: "text-decoration-none",
+                            data: { turbo: false } %>
+
+                <% if listing.budget.to_f >= 1000 && !current_user.verified_provider? %>
+                  <span class="badge bg-warning text-dark ms-2">
+                    🔒 Verification Required
+                  </span>
+                <% end %>
               </td>
 
+              <!-- Services -->
               <td class="text-muted">
                 <%= listing.services.map(&:name).join(", ") %>
               </td>
 
+              <!-- Budget -->
               <td>
                 <%= number_to_currency(listing.budget) %>
               </td>
 
+              <!-- Action -->
               <td class="text-end">
+
                 <% if my_bid.present? %>
-                    <span class="badge <%= bid_badge_class(my_bid) %>">
-                      <%= bid_badge_label(my_bid) %>
-                    </span>
+                  <span class="badge <%= bid_badge_class(my_bid) %>">
+                    <%= bid_badge_label(my_bid) %>
+                  </span>
+
                 <% else %>
-                  <% if gate.can_bid_on?(listing) %>
+
+                  <% if gate.can_bid_on_listing?(listing) %>
                     <%= link_to "Place Bid",
                                 new_listing_bid_path(listing),
                                 class: "btn btn-sm btn-primary",
                                 data: { turbo: false } %>
+
                   <% else %>
-                    <div class="alert alert-warning py-2 px-3 small mt-2">
-                      ⚠️ You cannot place a bid.
-                      <% if gate.bids_remaining.zero? %>
-                        Membership bid limit reached.
-                      <% elsif !current_user.verified_provider? && listing.budget.to_f >= 1000 %>
-                        Verification required for high-value jobs.
+                    <div class="alert alert-warning py-2 px-3 small mt-2 text-start">
+                      ⚠️ <%= gate.blocked_bid_reason(listing) %>
+
+                      <% if listing.budget.to_f >= 1000 && !current_user.verified_provider? %>
                         <% unless profile&.license_uploaded? %>
                           <br>
-                          Please <%= link_to "upload your license", provider_onboarding_path, class: "fw-semibold" %>.
+                          Please <%= link_to "upload your license",
+                                             provider_onboarding_path,
+                                             class: "fw-semibold" %>.
                         <% end %>
                       <% end %>
                     </div>
                   <% end %>
+
                 <% end %>
               </td>
             </tr>
@@ -120,10 +136,11 @@
           </tbody>
         </table>
       </div>
+
     <% else %>
       <div class="card-body text-center text-muted">
         No listings match your services right now.<br>
-        Check back later for new opportunities.
+        Check back later.
       </div>
     <% end %>
   </div>
@@ -135,7 +152,7 @@
       <span class="badge bg-info"><%= @my_bids.count %></span>
     </div>
 
-    <% if @my_bids&.any? %>
+    <% if @my_bids.any? %>
       <div class="table-responsive">
         <table class="table table-hover align-middle">
           <thead class="table-light">
@@ -143,30 +160,38 @@
             <th>Listing</th>
             <th>Amount</th>
             <th>Message</th>
-            <th>Terms / Notes</th>
+            <th>Terms</th>
             <th>Status</th>
-            <th>Created At</th>
+            <th>Created</th>
             <th>Actions</th>
           </tr>
           </thead>
+
           <tbody>
           <% @my_bids.each do |bid| %>
             <tr>
               <td>
                 <%= link_to bid.listing.title, listing_path(bid.listing), class: "fw-semibold" %>
               </td>
+
               <td><%= number_to_currency(bid.amount) %></td>
+
               <td class="text-muted"><%= bid.message.presence || "-" %></td>
+
               <td class="text-muted"><%= bid.terms.presence || "-" %></td>
+
               <td>
-                  <span class="badge <%= bid_badge_class(bid) %>">
-                    <%= bid.status.humanize %>
-                  </span>
+                <span class="badge <%= bid_badge_class(bid) %>">
+                  <%= bid.status.humanize %>
+                </span>
               </td>
+
               <td><%= bid.created_at.strftime("%b %d, %Y %I:%M %p") %></td>
+
               <td>
                 <% if bid.pending? %>
-                  <%= link_to "Withdraw", withdrawn_bid_path(bid),
+                  <%= link_to "Withdraw",
+                              withdrawn_bid_path(bid),
                               method: :patch,
                               class: "btn btn-sm btn-outline-danger",
                               data: { turbo: false } %>
@@ -174,11 +199,13 @@
                   <span class="text-muted">—</span>
                 <% end %>
               </td>
+
             </tr>
           <% end %>
           </tbody>
         </table>
       </div>
+
     <% else %>
       <div class="alert alert-info text-center">
         You have not placed any bids yet.

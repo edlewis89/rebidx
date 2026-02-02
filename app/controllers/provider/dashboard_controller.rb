@@ -24,7 +24,7 @@ module Provider
       # My bids
       @my_bids = current_user.bids.includes(:listing)
 
-      gate = MembershipGate.new(current_user)
+      gate = AccessGate.new(current_user)
       @bids_remaining = gate.bids_remaining
     end
 

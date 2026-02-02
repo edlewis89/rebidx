@@ -61,6 +61,39 @@ class AccessGate
     true
   end
 
+  def can_bid_on_listing?(listing)
+    return false unless can_bid?
+
+    # Require verification for high-budget jobs
+    if listing.budget.to_f >= 1000
+      return false unless @user.verified_provider?
+    end
+
+    true
+  end
+
+  def blocked_bid_reason(listing)
+    return "Membership bid limit reached" if bids_remaining.to_i <= 0
+
+    if listing.budget.to_f >= 1000 && !@user.verified_provider?
+      return "Verification required for jobs over $1,000"
+    end
+
+    nil
+  end
+
+  def can_message_homeowners?
+    @features["can_message_homeowners"] == true
+  end
+
+  def featured_priority?
+    @features["featured_priority"] == true
+  end
+
+  def profile_boost?
+    @features["profile_boost"] == true
+  end
+
   private
 
   def licensed_provider?

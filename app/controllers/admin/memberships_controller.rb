@@ -2,7 +2,8 @@ class Admin::MembershipsController < Admin::BaseController
   before_action :set_membership, only: %i[edit update show destroy]
 
   def index
-    @memberships = Membership.all
+    @memberships = Membership.where(active: true).order(:price_cents)
+    @current_membership = current_user.membership
   end
 
   def new
@@ -47,7 +48,18 @@ class Admin::MembershipsController < Admin::BaseController
     params.require(:membership).permit(
       :name,
       :price_cents,
-      features: Membership::FEATURE_KEYS.map(&:to_s)
+      features: [
+        :max_listings,
+        :max_bids_per_month,
+        :messaging,
+        :featured_listings,
+        :priority_support,
+        bid_range: [
+          :class_a => [:min, :max],
+          :class_b => [:min, :max],
+          :class_c => [:min, :max]
+        ]
+      ]
     )
   end
 

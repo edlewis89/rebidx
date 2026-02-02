@@ -53,12 +53,23 @@ Rails.application.routes.draw do
   end
 
   resources :memberships, only: [:index]
+  resources :provider_memberships, only: [:index]
   resource :subscription, only: [:show, :update, :destroy]
   resource :profile, only: [:show, :edit, :update]
 
   resources :notifications, only: [:index] do
     member { patch :mark_as_read }
     collection { post :mark_all_read }
+  end
+
+  resources :payments, only: [] do
+    collection do
+      post :create_membership_payment
+      post :create_listing_payment
+      get :success
+      get :cancel
+      post :webhook
+    end
   end
 
   # namespace :admin do

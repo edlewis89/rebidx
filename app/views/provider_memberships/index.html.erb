@@ -1,7 +1,7 @@
 <div class="container mt-5">
   <div class="text-center mb-4">
-    <h2 class="fw-bold">Upgrade Your Membership</h2>
-    <p class="text-muted">Unlock more listings, bids, and premium features</p>
+    <h2 class="fw-bold">Upgrade Provider Plan</h2>
+    <p class="text-muted">Get more leads, more bids, and higher visibility</p>
   </div>
 
   <div class="row g-4">
@@ -9,7 +9,7 @@
       <% features = membership.features || {} %>
 
       <div class="col-md-4">
-        <div class="card h-100 shadow-sm <%= 'border-primary' if membership == @current_membership %>">
+        <div class="card shadow-sm h-100 <%= 'border-primary' if membership == @current_membership %>">
           <div class="card-body text-center">
 
             <% if membership == @current_membership %>
@@ -24,11 +24,11 @@
             </h2>
 
             <ul class="list-unstyled text-start mt-3 small">
-              <li>📌 Max Listings: <strong><%= features["max_listings"] || 0 %></strong></li>
-              <li>📨 Messaging: <%= features["messaging"] ? "✅" : "❌" %></li>
-              <li>⭐ Featured Listings: <%= features["featured_listings"] ? "✅" : "❌" %></li>
+              <li>📨 Messaging: <%= features["can_message_homeowners"] ? "✅" : "❌" %></li>
               <li>📊 Max Bids / Month: <strong><%= features["max_bids_per_month"] || 0 %></strong></li>
-              <li>🎧 Priority Support: <%= features["priority_support"] ? "✅" : "❌" %></li>
+              <li>⭐ Featured Priority: <%= features["featured_priority"] ? "✅" : "❌" %></li>
+              <li>🚀 Profile Boost: <%= features["profile_boost"] ? "✅" : "❌" %></li>
+              <li>⏱ Lead Delay: <strong><%= features["lead_delay_hours"] || 24 %> hrs</strong></li>
             </ul>
 
             <% if membership != @current_membership %>

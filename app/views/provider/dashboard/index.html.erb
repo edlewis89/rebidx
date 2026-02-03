@@ -71,68 +71,62 @@
 
           <tbody>
           <% @available_listings.each do |listing| %>
-            <% my_bid = listing.bids.find_by(user: current_user) %>
 
-            <tr>
-              <!-- Listing -->
-              <td class="fw-semibold">
-                <%= link_to listing.title,
-                            listing_path(listing),
-                            class: "text-decoration-none",
-                            data: { turbo: false } %>
+              <% allowed = current_user.can_bid_on?(listing) %>
+              <% reason = current_user.lock_reason(listing) %>
 
-                <% if listing.budget.to_f >= 1000 && !current_user.verified_provider? %>
-                  <span class="badge bg-warning text-dark ms-2">
-                    🔒 Verification Required
-                  </span>
-                <% end %>
-              </td>
+              <tr class="<%= allowed ? '' : 'table-warning' %>">
 
-              <!-- Services -->
-              <td class="text-muted">
-                <%= listing.services.map(&:name).join(", ") %>
-              </td>
+                <!-- Job -->
+                <td>
+                  <strong><%= listing.title %></strong><br>
+                  <small class="text-muted"><%= truncate(listing.description, length: 80) %></small>
+                </td>
 
-              <!-- Budget -->
-              <td>
-                <%= number_to_currency(listing.budget) %>
-              </td>
+                <!-- Budget -->
+                <td>
+                  $<%= number_with_delimiter(listing.budget) %>
+                </td>
 
-              <!-- Action -->
-              <td class="text-end">
+                <!-- Status -->
+                <td>
+                  <% if allowed %>
+                    <span class="badge bg-success">Eligible to Bid</span>
+                  <% else %>
+                    <span class="badge bg-secondary">Locked</span><br>
+                    <small class="text-muted"><%= reason %></small>
+                  <% end %>
+                </td>
 
-                <% if my_bid.present? %>
-                  <span class="badge <%= bid_badge_class(my_bid) %>">
-                    <%= bid_badge_label(my_bid) %>
-                  </span>
-
-                <% else %>
-
-                  <% if gate.can_bid_on_listing?(listing) %>
+                <!-- Action -->
+                <td>
+                  <% if allowed %>
                     <%= link_to "Place Bid",
-                                new_listing_bid_path(listing),
-                                class: "btn btn-sm btn-primary",
-                                data: { turbo: false } %>
+                                listing_path(listing),
+                                class: "btn btn-sm btn-success" %>
+
+                  <% elsif reason&.include?("Upgrade") %>
+                    <%= link_to "Upgrade",
+                                provider_memberships_path,
+                                class: "btn btn-sm btn-warning" %>
+
+                  <% elsif reason&.include?("license") %>
+                    <%= link_to "Upload License",
+                                edit_provider_onboarding_path(current_user),
+                                class: "btn btn-sm btn-outline-primary" %>
+
+                  <% elsif reason&.include?("Verify") %>
+                    <%= link_to "Verify Account",
+                                verification_path,
+                                class: "btn btn-sm btn-outline-dark" %>
 
                   <% else %>
-                    <div class="alert alert-warning py-2 px-3 small mt-2 text-start">
-                      ⚠️ <%= gate.blocked_bid_reason(listing) %>
-
-                      <% if listing.budget.to_f >= 1000 && !current_user.verified_provider? %>
-                        <% unless profile&.license_uploaded? %>
-                          <br>
-                          Please <%= link_to "upload your license",
-                                             provider_onboarding_path,
-                                             class: "fw-semibold" %>.
-                        <% end %>
-                      <% end %>
-                    </div>
+                    <span class="text-muted">Unavailable</span>
                   <% end %>
+                </td>
 
-                <% end %>
-              </td>
-            </tr>
-          <% end %>
+              </tr>
+            <% end %>
           </tbody>
         </table>
       </div>

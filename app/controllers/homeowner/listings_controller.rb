@@ -4,7 +4,12 @@ module Homeowner
   before_action :set_listing, only: [:edit, :update, :destroy, :show]
 
   def index
-    @listings = current_user.listings.order(created_at: :desc)
+    @q = params[:q].to_s.strip
+
+    # Only show listings belonging to the current homeowner
+    @listings = current_user.listings
+    @listings = @listings.where("title ILIKE :q OR description ILIKE :q", q: "%#{@q}%") if @q.present?
+    @listings = @listings.order(created_at: :desc).page(params[:page]).per(20)
   end
 
   def edit

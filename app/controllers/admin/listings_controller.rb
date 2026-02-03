@@ -3,8 +3,16 @@ module Admin
   class ListingsController < BaseController
     before_action :set_listing, only: [:show, :edit, :update, :destroy]
 
+    # def index
+    #
+    #   @listings = Listing.includes(:user, :services).order(created_at: :desc)
+    # end
     def index
-      @listings = Listing.includes(:user, :services).order(created_at: :desc)
+      @q = params[:q].to_s.strip
+
+      @listings = Listing.all
+      @listings = @listings.where("title ILIKE :q OR description ILIKE :q", q: "%#{@q}%") if @q.present?
+      @listings = @listings.order(created_at: :desc).page(params[:page]).per(20)
     end
 
     def show

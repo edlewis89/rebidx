@@ -21,8 +21,15 @@
     </div>
   <% end %>
 
+  <%= form_with url: homeowner_listings_path, method: :get, local: true, class: "mb-3" do |f| %>
+    <div class="input-group">
+      <%= f.text_field :q, value: params[:q], class: "form-control", placeholder: "Search by title or description..." %>
+      <button class="btn btn-outline-primary">Search</button>
+    </div>
+  <% end %>
   <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4">
+
     <h2 class="fw-bold mb-0">My Listings</h2>
     <% gate = AccessGate.new(current_user) %>
     <% if gate.can_create_listing? %>

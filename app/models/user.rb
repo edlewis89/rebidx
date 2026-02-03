@@ -54,32 +54,55 @@ class User < ApplicationRecord
     service_provider_profile&.verified_provider?
   end
 
-  def can_bid_on?(listing)
-    return false unless listing.open?
-
-    if service_provider?
-      profile = service_provider_profile
-      return false unless profile
-
-      # Handyman = no license
-      if profile.license_types.empty?
-        return listing.budget.to_f <= 1_000
-      end
-
-      # Licensed provider: small jobs always allowed
-      return true if listing.budget.to_f <= 1_000
-
-      # For larger jobs: check license max & verification
-      max_budget = profile.max_project_budget || 1_000 # fallback
-      return false if listing.budget.to_f > max_budget
-
-      # Must be verified
-      profile.verified_provider?
-
-    else
-      false
-    end
+  def bid_range
+    features&.fetch("bid_range", {}) || {}
   end
+
+  def max_bid_amount
+    bid_range.is_a?(Hash) ? bid_range["high"].to_i : 0
+  end
+
+  def min_bid_amount
+    bid_range.is_a?(Hash) ? bid_range["low"].to_i : 0
+  end
+
+  def can_bid_on?(listing)
+    listing.budget.to_i <= max_bid_amount
+  end
+
+  def lock_reason(listing)
+    return "Upgrade membership to bid higher" if listing.budget > max_bid_amount
+    return "Upload license to bid on higher-value jobs" if listing.budget > 1000 && !license_verified?
+    return "Verify your account to unlock bidding" if listing.budget > 5000 && !verified?
+    nil
+  end
+
+  # def can_bid_on?(listing)
+  #   return false unless listing.open?
+  #
+  #   if service_provider?
+  #     profile = service_provider_profile
+  #     return false unless profile
+  #
+  #     # Handyman = no license
+  #     if profile.license_types.empty?
+  #       return listing.budget.to_f <= 1_000
+  #     end
+  #
+  #     # Licensed provider: small jobs always allowed
+  #     return true if listing.budget.to_f <= 1_000
+  #
+  #     # For larger jobs: check license max & verification
+  #     max_budget = profile.max_project_budget || 1_000 # fallback
+  #     return false if listing.budget.to_f > max_budget
+  #
+  #     # Must be verified
+  #     profile.verified_provider?
+  #
+  #   else
+  #     false
+  #   end
+  # end
 
   def provider_onboarded?
     service_provider? && service_provider_profile.present? &&

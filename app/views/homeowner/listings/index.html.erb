@@ -1,13 +1,21 @@
+
 <div class="container mt-4">
 
+  <!-- Search -->
+  <%= form_with url: homeowner_listings_path, method: :get, local: true, class: "mb-3" do |f| %>
+    <div class="input-group">
+      <%= f.text_field :q, value: params[:q], class: "form-control", placeholder: "Search by title or description..." %>
+      <button class="btn btn-outline-primary">Search</button>
+    </div>
+  <% end %>
+
+  <!-- Header + New Listing -->
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="fw-bold mb-0">My Listings</h2>
-
-    <%= link_to "Post New Listing",
-                new_listing_path,
-                class: "btn btn-primary" %>
+    <%= link_to "Post New Listing", new_listing_path, class: "btn btn-primary" %>
   </div>
 
+  <!-- Listings Table -->
   <% if @listings.any? %>
     <table class="table table-hover align-middle">
       <thead class="table-dark">
@@ -23,25 +31,27 @@
       <tbody>
       <% @listings.each do |listing| %>
         <tr>
+          <!-- Title -->
           <td>
             <%= link_to listing.title,
                         homeowner_listing_path(listing),
                         class: "fw-semibold text-decoration-none" %>
           </td>
 
+          <!-- Type -->
           <td><%= listing.listing_type.humanize %></td>
 
+          <!-- Status -->
           <td>
-              <span class="badge
-                <%= listing.open? ? 'bg-secondary' :
-                                                 listing.awarded? ? 'bg-success' :
-                                                   'bg-dark' %>">
-                <%= listing.status.humanize %>
-              </span>
+            <span class="badge <%= listing_badge_class(listing) %>">
+             <%= listing_badge_label(listing) %>
+           </span>
           </td>
 
+          <!-- Budget -->
           <td><%= number_to_currency(listing.budget) %></td>
 
+          <!-- Actions -->
           <td class="text-end">
             <%= link_to "View",
                         homeowner_listing_path(listing),
@@ -63,19 +73,24 @@
       <% end %>
       </tbody>
     </table>
+
+    <!-- Pagination -->
+    <div class="mt-3 d-flex justify-content-center">
+      <%= paginate @listings %>
+    </div>
+
   <% else %>
+    <!-- Empty State -->
     <div class="alert alert-light border text-center p-4">
       <h5 class="mb-2">No listings yet</h5>
       <p class="text-muted mb-3">
         Post a listing to start receiving bids from service providers.
       </p>
-
       <%= link_to "Post Your First Listing",
                   new_listing_path,
                   class: "btn btn-primary" %>
     </div>
   <% end %>
-
 </div>
 
 

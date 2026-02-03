@@ -1,7 +1,12 @@
 <!-- app/views/admin/listings/index.html.erb -->
 <div class="container mt-4">
   <h2 class="fw-bold mb-3">All Listings</h2>
-
+  <%= form_with url: admin_listings_path, method: :get, local: true, class: "mb-3" do |f| %>
+    <div class="input-group">
+      <%= f.text_field :q, value: params[:q], class: "form-control", placeholder: "Search by title or description..." %>
+      <button class="btn btn-outline-primary">Search</button>
+    </div>
+  <% end %>
   <% if @listings.any? %>
     <table class="table table-hover align-middle">
       <thead class="table-dark">
@@ -21,12 +26,9 @@
           <td><%= listing.user.name || listing.user.email %></td>
           <td><%= listing.services.map(&:name).join(", ") %></td>
           <td>
-              <span class="badge
-                <%= listing.open? ? 'bg-secondary' :
-                                                 listing.awarded? ? 'bg-success' :
-                                                   'bg-dark' %>">
-                <%= listing.status.humanize %>
-              </span>
+            <span class="badge <%= listing_badge_class(listing) %>">
+              <%= listing_badge_label(listing) %>
+            </span>
           </td>
           <td><%= number_to_currency(listing.budget) %></td>
           <td class="text-end">
@@ -45,6 +47,10 @@
       <% end %>
       </tbody>
     </table>
+    <!-- Pagination -->
+    <div class="mt-3 d-flex justify-content-center">
+      <%= paginate @listings %>
+    </div>
   <% else %>
     <div class="alert alert-light border text-center p-4">
       <h5 class="mb-2">No listings found</h5>

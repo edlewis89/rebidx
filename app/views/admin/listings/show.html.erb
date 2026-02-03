@@ -11,11 +11,8 @@
           <p><strong>Owner:</strong> <%= @listing.user.name || @listing.user.email %></p>
           <p><strong>Budget:</strong> <%= number_to_currency(@listing.budget) %></p>
 
-          <span class="badge
-            <%= @listing.open? ? 'bg-secondary' :
-                                         @listing.awarded? ? 'bg-success' :
-                                           'bg-dark' %>">
-            <%= @listing.status.humanize %>
+          <span class="badge <%= listing_badge_class(@listing) %>">
+            <%= listing_badge_label(@listing) %>
           </span>
         </div>
 

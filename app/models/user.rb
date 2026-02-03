@@ -66,16 +66,16 @@ class User < ApplicationRecord
     bid_range.is_a?(Hash) ? bid_range["low"].to_i : 0
   end
 
-  def can_bid_on?(listing)
-    listing.budget.to_i <= max_bid_amount
-  end
-
-  def lock_reason(listing)
-    return "Upgrade membership to bid higher" if listing.budget > max_bid_amount
-    return "Upload license to bid on higher-value jobs" if listing.budget > 1000 && !license_verified?
-    return "Verify your account to unlock bidding" if listing.budget > 5000 && !verified?
-    nil
-  end
+  # def can_bid_on?(listing)
+  #   listing.budget.to_i <= max_bid_amount
+  # end
+  #
+  # def lock_reason(listing)
+  #   return "Upgrade membership to bid higher" if listing.budget > max_bid_amount
+  #   return "Upload license to bid on higher-value jobs" if listing.budget > 1000 && !license_verified?
+  #   return "Verify your account to unlock bidding" if listing.budget > 5000 && !verified?
+  #   nil
+  # end
 
   # def can_bid_on?(listing)
   #   return false unless listing.open?

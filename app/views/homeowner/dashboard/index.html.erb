@@ -71,8 +71,8 @@
 
           <!-- Status Badge -->
           <td>
-           <span class="badge <%= listing_badge_class(listing) %>">
-            <%= listing_badge_label(listing) %>
+           <span class="badge <%= listing_badge_class(listing, provider: current_user) %>">
+            <%= listing_badge_label(listing, provider: current_user) %>
           </span>
           </td>
 

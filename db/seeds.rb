@@ -141,6 +141,7 @@ painting     = Service.create!(name: "Painting")
 roofing      = Service.create!(name: "Roofing")
 construction = Service.create!(name: "Construction")
 cleaning     = Service.create!(name: "Cleaning Service")
+custom       = Service.create!(name: "Custom / Other Service")
 
 puts "✅ Services seeded"
 

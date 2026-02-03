@@ -71,9 +71,10 @@
 
           <tbody>
           <% @available_listings.each do |listing| %>
+            <% gate = AccessGate.new(current_user) %>
 
-              <% allowed = current_user.can_bid_on?(listing) %>
-              <% reason = current_user.lock_reason(listing) %>
+              <% allowed = gate.can_bid_on?(listing) %>
+              <% reason = gate.blocked_bid_reason(listing) %>
 
               <tr class="<%= allowed ? '' : 'table-warning' %>">
 

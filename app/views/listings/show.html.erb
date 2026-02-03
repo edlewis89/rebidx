@@ -8,13 +8,8 @@
           <h2 class="fw-bold mb-1"><%= @listing.title %></h2>
           <p class="text-muted mb-2"><%= @listing.description %></p>
 
-          <% status_class =
-               @listing.open? ? "bg-secondary" :
-                 @listing.awarded? ? "bg-success" :
-                   "bg-dark" %>
-
-          <span class="badge <%= status_class %>">
-            <%= @listing.status.humanize %>
+          <span class="badge <%= listing_badge_class(@listing, provider: current_user) %>">
+            <%= listing_badge_label(@listing, provider: current_user) %>
           </span>
         </div>
 

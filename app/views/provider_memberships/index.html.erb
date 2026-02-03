@@ -24,11 +24,16 @@
             </h2>
 
             <ul class="list-unstyled text-start mt-3 small">
-              <li>📨 Messaging: <%= features["can_message_homeowners"] ? "✅" : "❌" %></li>
+              <li>📨 Messaging: <%= features["messaging"] ? "✅" : "❌" %></li>
               <li>📊 Max Bids / Month: <strong><%= features["max_bids_per_month"] || 0 %></strong></li>
-              <li>⭐ Featured Priority: <%= features["featured_priority"] ? "✅" : "❌" %></li>
-              <li>🚀 Profile Boost: <%= features["profile_boost"] ? "✅" : "❌" %></li>
-              <li>⏱ Lead Delay: <strong><%= features["lead_delay_hours"] || 24 %> hrs</strong></li>
+              <li>⭐ Featured Listings: <%= features["featured_listings"] ? "✅" : "❌" %></li>
+              <li>🚀 Can Bid High Value: <%= features["can_bid_high_value"] ? "✅" : "❌" %></li>
+              <% if features["priority_support"] %>
+                <li>💎 Priority Support: ✅</li>
+              <% end %>
+              <% if features["bid_range"] %>
+                <li>💰 Bid Range: <%= number_to_currency(features["bid_range"]["low"]) %> – <%= number_to_currency(features["bid_range"]["high"]) %></li>
+              <% end %>
             </ul>
 
             <% if membership != @current_membership %>

@@ -77,3 +77,4 @@ gem 'pundit'
 gem 'image_processing', '~> 1.2'  # Need to install imagemagic for processor of images
 gem 'stripe'
 gem 'kaminari'
+gem 'dotenv-rails'

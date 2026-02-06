@@ -89,5 +89,6 @@ Rails.application.routes.draw do
 
   get  "/choose-role", to: "roles#new",    as: :choose_role
   post "/choose-role", to: "roles#create"
+  post "/webhooks/stripe", to: "webhooks#stripe"
   root "listings#index"
 end

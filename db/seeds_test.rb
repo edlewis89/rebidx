@@ -116,9 +116,9 @@ puts "✅ License types seeded"
 # ===============================
 # USERS
 # ===============================
-# homeowner = User.create!(name: "Alice Homeowner", email: "alice@example.com", password: "password", role: :homeowner)
-# unlicensed_provider = User.create!(name: "Bob Repairs", email: "bob@example.com", password: "password", role: :service_provider)
-# licensed_contractor = User.create!(name: "Charlie Contractor", email: "pro@example.com", password: "password", role: :service_provider)
+homeowner = User.create!(name: "Alice Homeowner", email: "alice@example.com", password: "password", role: :homeowner)
+unlicensed_provider = User.create!(name: "Bob Repairs", email: "bob@example.com", password: "password", role: :service_provider)
+licensed_contractor = User.create!(name: "Charlie Contractor", email: "pro@example.com", password: "password", role: :service_provider)
 admin = User.create!(name: "Admin User", email: "admin@example.com", password: "password", role: :rebidx_admin)
 
 puts "✅ Users seeded"
@@ -127,10 +127,10 @@ puts "✅ Users seeded"
 # ===============================
 # SUBSCRIPTIONS
 # ===============================
-# pro_membership = Membership.find_by(name: "Pro")
-# licensed_contractor.create_subscription!(membership: pro_membership, status: "active")
+pro_membership = Membership.find_by(name: "Pro")
+licensed_contractor.create_subscription!(membership: pro_membership, status: "active")
 
-# puts "✅ Subscriptions seeded"
+puts "✅ Subscriptions seeded"
 
 # ===============================
 # SERVICES
@@ -148,133 +148,133 @@ puts "✅ Services seeded"
 # ===============================
 # SERVICE PROVIDER PROFILES
 # ===============================
-# profile_unlicensed = ServiceProviderProfile.create!(
-#   user: unlicensed_provider,
-#   business_name: "Bob Repairs",
-#   full_name: "Bob Seiger",
-#   tax_id: "123456789"
-# )
-#
-# profile_contractor = ServiceProviderProfile.create!(
-#   user: licensed_contractor,
-#   business_name: "Charlie's Construction",
-#   full_name: "Charlie Sheen",
-#   tax_id: "987654321"
-# )
+profile_unlicensed = ServiceProviderProfile.create!(
+  user: unlicensed_provider,
+  business_name: "Bob Repairs",
+  full_name: "Bob Seiger",
+  tax_id: "123456789"
+)
 
-# puts "✅ Provider profiles seeded"
+profile_contractor = ServiceProviderProfile.create!(
+  user: licensed_contractor,
+  business_name: "Charlie's Construction",
+  full_name: "Charlie Sheen",
+  tax_id: "987654321"
+)
+
+puts "✅ Provider profiles seeded"
 
 # Assign license types
-# profile_contractor.license_types << class_c
-# puts "✅ Provider license types assigned"
+profile_contractor.license_types << class_c
+puts "✅ Provider license types assigned"
 
 # Provider services
-# [plumbing, painting, construction].each do |svc|
-#   ProviderService.create!(service_provider_profile: profile_unlicensed, service: svc)
-# end
+[plumbing, painting, construction].each do |svc|
+  ProviderService.create!(service_provider_profile: profile_unlicensed, service: svc)
+end
 
-# [plumbing, electrical, roofing, construction].each do |svc|
-#   ProviderService.create!(service_provider_profile: profile_contractor, service: svc)
-# end
+[plumbing, electrical, roofing, construction].each do |svc|
+  ProviderService.create!(service_provider_profile: profile_contractor, service: svc)
+end
 
-# puts "✅ Provider services seeded"
+puts "✅ Provider services seeded"
 
 # ===============================
 # PROPERTIES
 # ===============================
-# property1 = Property.create!(user: homeowner, title: "Maple Street House", city: "New York", address: "123 Maple St")
-# property2 = Property.create!(user: homeowner, title: "Oak Avenue Condo", city: "Boston", address: "456 Oak Ave")
-# property3 = Property.create!(user: homeowner, title: "Tallimore Estates", city: "Chantilly", address: "28 Tallimore Ave")
+property1 = Property.create!(user: homeowner, title: "Maple Street House", city: "New York", address: "123 Maple St")
+property2 = Property.create!(user: homeowner, title: "Oak Avenue Condo", city: "Boston", address: "456 Oak Ave")
+property3 = Property.create!(user: homeowner, title: "Tallimore Estates", city: "Chantilly", address: "28 Tallimore Ave")
 
-# puts "✅ Properties seeded"
+puts "✅ Properties seeded"
 
 # ===============================
 # LISTINGS — mixed values
 # ===============================
-# listing1 = Listing.create!(user: homeowner, property: property1, title: "Fix Kitchen Sink", description: "The sink is leaking badly", listing_type: :service, status: :open, budget: 200)
-# listing2 = Listing.create!(user: homeowner, property: property2, title: "Paint Living Room", description: "Need fresh paint in living room", listing_type: :service, status: :open, budget: 350)
-# listing3 = Listing.create!(user: homeowner, property: property2, title: "Shed framing repair", description: "Minor framing and reinforcement work", listing_type: :build_opportunity, status: :open, budget: 850)
-# listing4 = Listing.create!(user: homeowner, property: property3, title: "Bathroom Remodel", description: "Mid-level bathroom upgrade", listing_type: :build_opportunity, status: :open, budget: 2_500)
-# listing5 = Listing.create!(user: homeowner, property: property3, title: "Add basement room", description: "Full basement expansion with permits", listing_type: :build_opportunity, status: :open, budget: 24_000)
+listing1 = Listing.create!(user: homeowner, property: property1, title: "Fix Kitchen Sink", description: "The sink is leaking badly", listing_type: :service, status: :open, budget: 200)
+listing2 = Listing.create!(user: homeowner, property: property2, title: "Paint Living Room", description: "Need fresh paint in living room", listing_type: :service, status: :open, budget: 350)
+listing3 = Listing.create!(user: homeowner, property: property2, title: "Shed framing repair", description: "Minor framing and reinforcement work", listing_type: :build_opportunity, status: :open, budget: 850)
+listing4 = Listing.create!(user: homeowner, property: property3, title: "Bathroom Remodel", description: "Mid-level bathroom upgrade", listing_type: :build_opportunity, status: :open, budget: 2_500)
+listing5 = Listing.create!(user: homeowner, property: property3, title: "Add basement room", description: "Full basement expansion with permits", listing_type: :build_opportunity, status: :open, budget: 24_000)
 # listing6 = Listing.create!(user: homeowner, property: property1, title: "Roof Replacement", description: "Full tear-off and new roof install", listing_type: :build_opportunity, status: :open, budget: 12_000)
 
-# puts "✅ Listings seeded"
-#
-# # Listing services
-# ListingService.create!(listing: listing1, service: plumbing)
-# ListingService.create!(listing: listing2, service: painting)
-# ListingService.create!(listing: listing3, service: construction)
-# ListingService.create!(listing: listing4, service: construction)
-# ListingService.create!(listing: listing5, service: construction)
+puts "✅ Listings seeded"
+
+# Listing services
+ListingService.create!(listing: listing1, service: plumbing)
+ListingService.create!(listing: listing2, service: painting)
+ListingService.create!(listing: listing3, service: construction)
+ListingService.create!(listing: listing4, service: construction)
+ListingService.create!(listing: listing5, service: construction)
 # ListingService.create!(listing: listing6, service: roofing)
 
-# puts "✅ Listing services linked"
+puts "✅ Listing services linked"
 
 
 # ===============================
 # SECOND HOMEOWNER FOR TESTING
 # ===============================
-# homeowner2 = User.create!(name: "Eve Homeowner", email: "eve@example.com", password: "password", role: :homeowner)
-# puts "✅ Second homeowner seeded"
-#
-# # Properties
-# property4 = Property.create!(user: homeowner2, title: "Cedar Lane House", city: "Chicago", address: "101 Cedar Ln")
-# property5 = Property.create!(user: homeowner2, title: "Pine Street Apartment", city: "Seattle", address: "202 Pine St")
-# property6 = Property.create!(user: homeowner2, title: "Birchwood Villa", city: "Austin", address: "303 Birchwood Ave")
-# puts "✅ Properties for second homeowner seeded"
-#
-# # Listings — mid-tier so Pro can bid
-# listing7 = Listing.create!(user: homeowner2, property: property4, title: "Fix Leaky Faucet", description: "Kitchen faucet leaking", listing_type: :service, status: :open, budget: 300)
-# listing8 = Listing.create!(user: homeowner2, property: property5, title: "Paint Bedroom", description: "Need bedroom painted", listing_type: :service, status: :open, budget: 450)
-# # listing9 = Listing.create!(user: homeowner2, property: property6, title: "Small Deck Repair", description: "Minor deck repair needed", listing_type: :build_opportunity, status: :open, budget: 950)
-# puts "✅ Listings for second homeowner seeded"
-#
-# # Listing Services
-# ListingService.create!(listing: listing7, service: plumbing)
-# ListingService.create!(listing: listing8, service: painting)
-# # ListingService.create!(listing: listing9, service: construction)
-# puts "✅ Listing services linked for second homeowner"
+homeowner2 = User.create!(name: "Eve Homeowner", email: "eve@example.com", password: "password", role: :homeowner)
+puts "✅ Second homeowner seeded"
+
+# Properties
+property4 = Property.create!(user: homeowner2, title: "Cedar Lane House", city: "Chicago", address: "101 Cedar Ln")
+property5 = Property.create!(user: homeowner2, title: "Pine Street Apartment", city: "Seattle", address: "202 Pine St")
+property6 = Property.create!(user: homeowner2, title: "Birchwood Villa", city: "Austin", address: "303 Birchwood Ave")
+puts "✅ Properties for second homeowner seeded"
+
+# Listings — mid-tier so Pro can bid
+listing7 = Listing.create!(user: homeowner2, property: property4, title: "Fix Leaky Faucet", description: "Kitchen faucet leaking", listing_type: :service, status: :open, budget: 300)
+listing8 = Listing.create!(user: homeowner2, property: property5, title: "Paint Bedroom", description: "Need bedroom painted", listing_type: :service, status: :open, budget: 450)
+# listing9 = Listing.create!(user: homeowner2, property: property6, title: "Small Deck Repair", description: "Minor deck repair needed", listing_type: :build_opportunity, status: :open, budget: 950)
+puts "✅ Listings for second homeowner seeded"
+
+# Listing Services
+ListingService.create!(listing: listing7, service: plumbing)
+ListingService.create!(listing: listing8, service: painting)
+# ListingService.create!(listing: listing9, service: construction)
+puts "✅ Listing services linked for second homeowner"
 
 
 # ===============================
 # BIDS — respect membership bid ranges
 # ===============================
-# def create_bid(user, listing, amount, message)
-#   min, max = user.bid_range
-#   return if amount < min || amount > max
-#
-#   bid = Bid.create(
-#     listing: listing,
-#     user: user,
-#     amount: amount,
-#     message: message,
-#     status: :pending
-#   )
-#
-#   if bid.valid?
-#     puts "Created bid"
-#   else
-#     puts "Failed to create #{ bid.inspect } #{bid.errors.inspect}"
-#   end
-# end
-#
-# # Unlicensed provider: only low-budget
-# create_bid(unlicensed_provider, listing1, 180, "Quick affordable fix")
-# create_bid(unlicensed_provider, listing2, 300, "Clean professional job")
-# create_bid(unlicensed_provider, listing3, 750, "Handled similar framing before")
-# create_bid(unlicensed_provider, listing4, 900, "Attempt high job — should be blocked by range")
-#
-# # Licensed contractor: full range
-# create_bid(licensed_contractor, listing3, 900, "Licensed, insured, fast turnaround")
-# create_bid(licensed_contractor, listing4, 2_200, "Bathroom remodel with permits")
-# create_bid(licensed_contractor, listing5, 23_000, "Full crew, inspections included")
-# # create_bid(licensed_contractor, listing6, 11_500, "Roof replacement with warranty")
-#
-# # Optional: Pro places bids to hit limit
-# create_bid(licensed_contractor, listing7, 280, "Quick plumbing fix")
-# create_bid(licensed_contractor, listing8, 400, "Painting with high finish")
-# # create_bid(licensed_contractor, listing9, 900, "Deck repair by licensed team")
-# puts "✅ Additional bids by Pro seeded to reach bid limit"
+def create_bid(user, listing, amount, message)
+  min, max = user.bid_range
+  return if amount < min || amount > max
+
+  bid = Bid.create(
+    listing: listing,
+    user: user,
+    amount: amount,
+    message: message,
+    status: :pending
+  )
+
+  if bid.valid?
+    puts "Created bid"
+  else
+    puts "Failed to create #{ bid.inspect } #{bid.errors.inspect}"
+  end
+end
+
+# Unlicensed provider: only low-budget
+create_bid(unlicensed_provider, listing1, 180, "Quick affordable fix")
+create_bid(unlicensed_provider, listing2, 300, "Clean professional job")
+create_bid(unlicensed_provider, listing3, 750, "Handled similar framing before")
+create_bid(unlicensed_provider, listing4, 900, "Attempt high job — should be blocked by range")
+
+# Licensed contractor: full range
+create_bid(licensed_contractor, listing3, 900, "Licensed, insured, fast turnaround")
+create_bid(licensed_contractor, listing4, 2_200, "Bathroom remodel with permits")
+create_bid(licensed_contractor, listing5, 23_000, "Full crew, inspections included")
+# create_bid(licensed_contractor, listing6, 11_500, "Roof replacement with warranty")
+
+# Optional: Pro places bids to hit limit
+create_bid(licensed_contractor, listing7, 280, "Quick plumbing fix")
+create_bid(licensed_contractor, listing8, 400, "Painting with high finish")
+# create_bid(licensed_contractor, listing9, 900, "Deck repair by licensed team")
+puts "✅ Additional bids by Pro seeded to reach bid limit"
 
 
 puts "✅ Bids seeded respecting membership ranges"

@@ -22,11 +22,11 @@ class BidPolicy < ApplicationPolicy
   end
 
   def accept?
-    user.present? && record.listing.user == user && record.pending?
+    user.present? && ( user.admin? || record.listing.user == user) && record.pending?
   end
 
   def reject?
-    user.present? && record.listing.user == user && record.pending?
+    user.present? && ( user.admin? || record.listing.user == user) && record.pending?
   end
 
   def can_bid?

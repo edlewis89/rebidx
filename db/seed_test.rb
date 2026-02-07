@@ -240,8 +240,20 @@ puts "✅ Listing services linked for second homeowner"
 # BIDS — respect membership bid ranges
 # ===============================
 def create_bid(user, listing, amount, message)
-  min, max = user.bid_range
-  return if amount < min || amount > max
+  membership = user.subscription&.membership
+  unless membership
+    puts "Skipped bid for #{user.name} on listing #{listing.id} — no active membership"
+    return
+  end
+
+  bid_range = membership.features["bid_range"]
+  min = bid_range["low"]
+  max = bid_range["high"]
+
+  if amount < min || amount > max
+    puts "Skipped bid for #{user.name} on listing #{listing.id} — amount #{amount} out of range (#{min}-#{max})"
+    return
+  end
 
   bid = Bid.create(
     listing: listing,
@@ -251,10 +263,10 @@ def create_bid(user, listing, amount, message)
     status: :pending
   )
 
-  if bid.valid?
-    puts "Created bid"
+  if bid.persisted?
+    puts "Created bid for #{user.name} on listing #{listing.id} — $#{amount}"
   else
-    puts "Failed to create #{ bid.inspect } #{bid.errors.inspect}"
+    puts "Failed to create bid: #{bid.errors.full_messages.join(", ")}"
   end
 end
 

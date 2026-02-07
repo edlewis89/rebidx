@@ -22,7 +22,7 @@
         <td><%= profile.business_name %></td>
         <td><%= profile.user.email %></td>
         <td>
-          <% if profile.verified? %>
+          <% if profile.verified_provider? %>
             <span class="badge bg-success">Verified</span>
           <% else %>
             <span class="badge bg-secondary">Unverified</span>
@@ -63,7 +63,7 @@
                           method: :patch,
                           class: "btn btn-sm btn-success",
                           form_class: "d-inline",
-                          data: { turbo: true } %>
+                          data: { turbo: false } %>
           <% else %>
             <span class="text-muted">—</span>
           <% end %>

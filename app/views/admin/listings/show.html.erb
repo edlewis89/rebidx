@@ -86,14 +86,14 @@
                 <div class="btn-group btn-group-sm">
                   <% if bid.pending? %>
                     <%= button_to "Accept",
-                                  accept_bid_path(bid),
+                                  accept_bid_path(bid, admin_override: true),
                                   method: :patch,
                                   data: { turbo: false },
                                   class: "btn btn-success",
                                   form_class: "d-inline" %>
 
                     <%= button_to "Reject",
-                                  reject_bid_path(bid),
+                                  reject_bid_path(bid, admin_override: true),
                                   method: :patch,
                                   data: { turbo: false },
                                   class: "btn btn-outline-danger",

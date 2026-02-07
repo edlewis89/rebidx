@@ -30,6 +30,11 @@ class ServiceProviderProfile < ApplicationRecord
   after_commit :create_identity_check, if: -> { government_id.attached? }
   after_save :trigger_verification_if_required
 
+  after_update :sync_verification_profile, if: :saved_change_to_verified?
+
+
+
+
   # ---- Verification Access (READ ONLY) ----
 
   def verification_profile
@@ -122,6 +127,18 @@ class ServiceProviderProfile < ApplicationRecord
 
   def licensed?
     license_uploaded?
+  end
+
+  # Updates the associated verification_profile when verified changes
+  def sync_verification_profile
+    return unless self[:verified] # use column, not delegated verified?
+
+    vp = verification_profile
+    vp.update!(
+      status: "verified",
+      verified_at: Time.current
+    )
+    vp.verification_checks.update_all(status: "approved")
   end
 end
 

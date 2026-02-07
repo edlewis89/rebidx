@@ -101,9 +101,15 @@ class BidsController < ApplicationController
   end
 
   def set_bid
-    @bid = Bid.joins(:listing)
-              .where(listings: { user_id: current_user.id }) # bids on current user's listings
-              .find(params[:id])
+    if params[:admin_override]
+      # Admin bypasses ownership check
+      @bid = Bid.find(params[:id])
+    else
+      # Normal user: only bids on their listings
+      @bid = Bid.joins(:listing)
+                .where(listings: { user_id: current_user.id })
+                .find(params[:id])
+    end
   end
 
   def bid_params

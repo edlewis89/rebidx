@@ -95,16 +95,19 @@
       <%= button_to "Approve Verification",
                     admin_verification_path(@profile, status: "verified"),
                     method: :patch,
+                    data: { turbo: false },
                     class: "btn btn-success" %>
 
       <%= button_to "Reject Verification",
                     admin_verification_path(@profile, status: "rejected"),
                     method: :patch,
+                    data: { turbo: false },
                     class: "btn btn-danger" %>
 
       <%= button_to "Mark Pending",
                     admin_verification_path(@profile, status: "pending"),
                     method: :patch,
+                    data: { turbo: false },
                     class: "btn btn-warning" %>
 
     </div>

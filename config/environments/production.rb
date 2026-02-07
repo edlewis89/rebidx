@@ -70,10 +70,12 @@ Rails.application.configure do
 
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
+  # Redis cache store
   if ENV['REDIS_URL'].present?
     config.cache_store = :redis_cache_store, {
       url: ENV['REDIS_URL'],
-      namespace: 'rebidx-cache'
+      namespace: 'rebidx-cache',
+      pool: { size: ENV.fetch("RAILS_MAX_THREADS") { 5 }, timeout: 5 }
     }
   else
     config.cache_store = :memory_store

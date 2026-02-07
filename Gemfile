@@ -78,3 +78,4 @@ gem 'image_processing', '~> 1.2'  # Need to install imagemagic for processor of 
 gem 'stripe'
 gem 'kaminari'
 gem 'dotenv-rails'
+gem 'redis', '~> 5.0' # or latest stable version

@@ -57,6 +57,7 @@ class AccessGate
     return false unless can_bid?
     return false if listing.user == @user
     return false unless listing.open?
+
     # Use bid amount if provided, otherwise fallback to listing budget
     bid_amount ||= listing.budget.to_f
 

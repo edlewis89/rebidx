@@ -88,9 +88,11 @@ Rails.application.routes.draw do
   # end
   # API routes
   namespace :api, defaults: { format: :json } do
+    devise_scope :user do
+      post '/login', to: 'sessions#create'
+    end
     resources :listings, only: [:index, :show, :create, :update, :destroy]
     resources :bids, only: [:index, :create]
-    post '/login', to: 'sessions#create'
   end
 
   get  "/choose-role", to: "roles#new",    as: :choose_role

@@ -86,6 +86,11 @@ Rails.application.routes.draw do
   #   resources :listings, only: [:index, :show, :edit, :update, :destroy] # <-- this
   #   resources :users, only: [:index, :show, :edit, :update, :destroy]
   # end
+  # API routes
+  namespace :api, defaults: { format: :json } do
+    resources :listings, only: [:index, :show, :create, :update, :destroy]
+    resources :bids, only: [:index, :create]
+  end
 
   get  "/choose-role", to: "roles#new",    as: :choose_role
   post "/choose-role", to: "roles#create"

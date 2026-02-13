@@ -1,15 +1,18 @@
 module Api
-  class BidsController < ApplicationController
-    before_action :authenticate_user! # Devise auth
+  class BidsController < BaseController
 
     def index
-      bids = Bids.all
+      bids = current_user.bids
       render json: bids
+    rescue => e
+      render json: { status: 500, error: e.message }, status: :internal_server_error
     end
 
     def show
-      bid = Bid.find(params[:id])
+      bid = current_user.bids.find(params[:id])
       render json: bid
+    rescue => e
+      render json: { status: 500, error: e.message }, status: :internal_server_error
     end
 
     def create
@@ -24,7 +27,7 @@ module Api
     private
 
     def bid_params
-      params.require(:bid).permit(:user_id, :listing_id, :amount, :message, :terms, :status)
+      params.require(:bid).permit(:listing_id, :amount, :message, :terms, :status)
     end
   end
 end

@@ -1,6 +1,5 @@
 module Api
-  class ListingsController < ApplicationController
-    before_action :authenticate_user! # Devise auth
+  class ListingsController < BaseController
 
     def index
       listings = Listing.all

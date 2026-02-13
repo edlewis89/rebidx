@@ -1,13 +1,18 @@
 module Api
-  class SessionsController < Devise::SessionsController
-    skip_before_action :verify_authenticity_token, only: [:create]
+  class SessionsController < ActionController::API
+    skip_before_action :verify_authenticity_token
     respond_to :json
 
     def create
       user = User.find_for_database_authentication(email: params[:user][:email])
+
       if user&.valid_password?(params[:user][:password])
-        sign_in(user)
-        render json: { user: user, token: Warden::JWTAuth::UserEncoder.new.call(user, :user, nil).first }
+        token, _payload = Warden::JWTAuth::UserEncoder.new.call(user, :user, nil)
+
+        render json: {
+          user: user,
+          token: token
+        }
       else
         render json: { error: 'Invalid email or password' }, status: :unauthorized
       end

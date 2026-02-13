@@ -1,8 +1,5 @@
 module Api
-  class SessionsController < ActionController::API
-    skip_before_action :verify_authenticity_token
-    respond_to :json
-
+  class SessionsController < Api::BaseController
     def create
       user = User.find_for_database_authentication(email: params[:user][:email])
 

@@ -90,6 +90,7 @@ Rails.application.routes.draw do
   namespace :api, defaults: { format: :json } do
     devise_scope :user do
       post '/login', to: 'sessions#create'
+      post '/signup', to: 'registrations#create'  # <-- add this
     end
     resources :listings, only: [:index, :show, :create, :update, :destroy]
     resources :bids, only: [:index, :create]

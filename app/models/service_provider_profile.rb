@@ -31,6 +31,11 @@ class ServiceProviderProfile < ApplicationRecord
   after_save :trigger_verification_if_required
 
   after_update :sync_verification_profile, if: :saved_change_to_verified?
+  geocoded_by :full_address
+  after_validation :geocode, if: :will_save_change_to_address? ||
+    :will_save_change_to_city? ||
+    :will_save_change_to_state? ||
+    :will_save_change_to_zipcode?
 
 
 
@@ -139,6 +144,10 @@ class ServiceProviderProfile < ApplicationRecord
       verified_at: Time.current
     )
     vp.verification_checks.update_all(status: "approved")
+  end
+
+  def full_address
+    [address, city, state, zipcode].compact.join(", ")
   end
 end
 

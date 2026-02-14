@@ -20,6 +20,24 @@ module Api
       end
     end
 
+    def nearby
+      provider = current_user.service_provider_profile
+      return render json: { error: "No provider profile" }, status: :unprocessable_entity unless provider
+
+      radius = current_user.subscription&.membership&.service_radius || 25
+
+      # Efficient DB query joining properties
+      property_ids = Property.near([profile.latitude, profile.longitude], radius).pluck(:id)
+      listings = Listing.where(property_id: property_ids)
+
+      render json: listings.as_json(
+        include: {
+          property: { only: [:id, :address, :city, :state, :zipcode] },
+          user: { only: [:id, :name, :email] }
+        }
+      )
+    end
+
     private
 
     def listing_params

@@ -5,6 +5,7 @@ class CreateProperties < ActiveRecord::Migration[7.1]
       t.string :title
       t.string :address
       t.string :city
+      t.string :state
       t.integer :zipcode
       t.string :parcel_number
       t.integer :sqft

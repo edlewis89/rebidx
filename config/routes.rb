@@ -93,6 +93,9 @@ Rails.application.routes.draw do
     end
     resources :listings, only: [:index, :show, :create, :update, :destroy]
     resources :bids, only: [:index, :create]
+
+    get "listings/nearby", to: "listings#nearby"
+    get "providers/nearby", to: "providers#nearby"
   end
 
   get  "/choose-role", to: "roles#new",    as: :choose_role

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_07_015004) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_14_032602) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -107,6 +107,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_07_015004) do
     t.boolean "active", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "service_radius", default: 25, null: false
   end
 
   create_table "notifications", force: :cascade do |t|
@@ -142,12 +143,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_07_015004) do
     t.string "title"
     t.string "address"
     t.string "city"
+    t.string "state"
     t.integer "zipcode"
     t.string "parcel_number"
     t.integer "sqft"
     t.string "zoning"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.float "latitude"
+    t.float "longitude"
+    t.index ["latitude", "longitude"], name: "index_properties_on_latitude_and_longitude"
     t.index ["user_id"], name: "index_properties_on_user_id"
   end
 
@@ -197,6 +202,13 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_07_015004) do
     t.string "tax_id"
     t.string "government_id"
     t.string "business_license_number"
+    t.string "address"
+    t.string "city"
+    t.string "state"
+    t.string "zipcode"
+    t.float "latitude"
+    t.float "longitude"
+    t.index ["latitude", "longitude"], name: "index_service_provider_profiles_on_latitude_and_longitude"
     t.index ["user_id"], name: "index_service_provider_profiles_on_user_id"
     t.index ["verification_status"], name: "index_service_provider_profiles_on_verification_status"
   end

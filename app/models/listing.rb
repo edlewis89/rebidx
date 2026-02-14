@@ -65,4 +65,15 @@ class Listing < ApplicationRecord
       profile.verified_provider?
     end
   end
+
+  def nearby_listings
+    provider = current_user.service_provider_profile
+
+    radius = current_user.subscription&.membership&.service_radius || 25
+
+    listings = Listing.joins(:property)
+                      .merge(Property.near([provider.latitude, provider.longitude], radius))
+
+    render json: listings
+  end
 end

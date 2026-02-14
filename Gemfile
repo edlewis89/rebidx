@@ -81,3 +81,4 @@ gem 'dotenv-rails'
 gem 'redis', '~> 5.0' # or latest stable version
 gem 'connection_pool', '~> 2.2'
 gem 'devise-jwt' # API
+gem 'geocoder'

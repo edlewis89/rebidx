@@ -1,6 +1,6 @@
 # app/controllers/api/properties_controller.rb
 module Api
-  class PropertiesController < ApplicationController
+  class PropertiesController < Api::BaseController
     before_action :authenticate_user!
     before_action :ensure_homeowner, only: [:create, :update, :destroy]
 
@@ -36,6 +36,25 @@ module Api
       property = current_user.properties.find(params[:id])
       property.destroy
       render json: { message: "Property deleted" }
+    end
+
+    # POST /api/properties/batch_create
+    def batch_create
+      created = []
+      errors = []
+
+      params[:properties].each do |prop_params|
+        property = current_user.properties.build(prop_params.permit(
+          :title, :address, :city, :state, :zipcode, :latitude, :longitude, :parcel_number, :sqft, :zoning
+        ))
+        if property.save
+          created << property
+        else
+          errors << { property: prop_params[:title], errors: property.errors.full_messages }
+        end
+      end
+
+      render json: { created: created, errors: errors }
     end
 
     private

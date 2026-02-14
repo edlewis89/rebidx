@@ -1,5 +1,5 @@
 module Api
-  class ServiceProviderProfilesController < ApplicationController
+  class ServiceProviderProfilesController < Api::BaseController
     before_action :authenticate_user! # JWT authentication
     before_action :ensure_service_provider
 

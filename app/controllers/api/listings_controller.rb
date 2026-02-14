@@ -1,5 +1,5 @@
 module Api
-  class ListingsController < BaseController
+  class ListingsController < Api::BaseController
 
     # GET /api/listings
     def index

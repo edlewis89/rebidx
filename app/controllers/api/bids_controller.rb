@@ -1,5 +1,5 @@
 module Api
-  class BidsController < BaseController
+  class BidsController < Api::BaseController
 
     def index
       bids = current_user.bids

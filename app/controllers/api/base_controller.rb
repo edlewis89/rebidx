@@ -12,15 +12,16 @@ module Api
 
       if token
         begin
+          binding.pry
           decoded = JWT.decode(
             token,
-            Rails.application.credentials.secret_key_base,
+            Rails.application.credentials.devise_jwt_secret_key!,
             true,
             algorithm: 'HS256'
           )[0]
 
-          @current_user = User.find(decoded['sub'])
-        rescue
+          @current_user = User.find(decoded['sub']) # Devise JWT uses 'sub' for user ID
+        rescue JWT::DecodeError, ActiveRecord::RecordNotFound
           render json: { error: 'Unauthorized' }, status: :unauthorized
         end
       else

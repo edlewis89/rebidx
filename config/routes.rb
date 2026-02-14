@@ -94,6 +94,8 @@ Rails.application.routes.draw do
     end
     resources :listings, only: [:index, :show, :create, :update, :destroy]
     resources :bids, only: [:index, :create]
+    resources :service_provider_profiles, only: [:create, :update]
+    resources :properties
 
     get "listings/nearby", to: "listings#nearby"
     get "providers/nearby", to: "providers#nearby"

@@ -1,10 +1,12 @@
 module Api
   class ListingsController < BaseController
 
+    # GET /api/listings
     def index
-      listings = Listing.all
+      listings = current_user.role == "homeowner" ? current_user.listings : Listing.all
       render json: listings
     end
+
 
     def show
       listing = Listing.find(params[:id])
@@ -18,6 +20,23 @@ module Api
       else
         render json: { errors: listing.errors.full_messages }, status: :unprocessable_entity
       end
+    end
+
+    # PATCH /api/listings/:id
+    def update
+      listing = current_user.listings.find(params[:id])
+      if listing.update(listing_params)
+        render json: listing
+      else
+        render json: { errors: listing.errors.full_messages }, status: :unprocessable_entity
+      end
+    end
+
+    # DELETE /api/listings/:id
+    def destroy
+      listing = current_user.listings.find(params[:id])
+      listing.destroy
+      render json: { message: "Listing deleted" }
     end
 
     def nearby
@@ -40,8 +59,20 @@ module Api
 
     private
 
+    def ensure_homeowner
+      render json: { error: "Only homeowners can manage listings" }, status: :forbidden unless current_user.homeowner?
+    end
+
     def listing_params
-      params.require(:listing).permit(:title, :description, :price)
+      params.require(:listing).permit(
+        :title,
+        :description,
+        :listing_type,
+        :status,
+        :budget,
+        :property_id,
+        service_ids: []
+      )
     end
   end
 end

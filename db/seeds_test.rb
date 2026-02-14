@@ -50,58 +50,65 @@ puts "🌱 Seeding data..."
 # Elite	B	0 – 100,000
 # Platinum	A	0 – unlimited
 Membership.create!([
-         {
-           name: "Free",
-           price_cents: 0,
-           features: {
-             max_listings: 5,
-             max_bids_per_month: 5,
-             messaging: false,
-             can_bid_high_value: false,
-             show_ads: true,
-             featured_listings: false,
-             bid_range: { low: 0, high: 1000 } # unlicensed or low-tier
-           },
-           active: true
-         },
-          {
-            name: "Pro",          # Class C
-            price_cents: 2900,
-            features: {
-              max_listings: 10,
-              max_bids_per_month: 10,
-              messaging: true,
-              featured_listings: true,
-              can_bid_high_value: true,
-              bid_range: { low: 0, high: 20_000 }
-            }
-          },
-          {
-            name: "Elite",       # Class B
-            price_cents: 6900,
-            features: {
-              max_listings: 20,
-              max_bids_per_month: 40,
-              messaging: true,
-              featured_listings: true,
-              can_bid_high_value: true,
-              bid_range: { low: 0, high: 100_000 }
-            }
-          },
-          {
-            name: "Platinum",        # Class A
-            price_cents: 9900,
-            features: {
-              max_listings: 9999,
-              max_bids_per_month: 9999,
-              messaging: true,
-              featured_listings: true,
-              can_bid_high_value: true,
-              priority_support: true,
-              bid_range: { low: 0, high: 1_000_000 } # effectively unlimited
-            }
-          }
-        ])
+                     {
+                       name: "Free",
+                       price_cents: 0,
+                       service_radius: 10,  # small radius
+                       features: {
+                         max_listings: 5,
+                         max_bids_per_month: 5,
+                         messaging: false,
+                         can_bid_high_value: false,
+                         show_ads: true,
+                         featured_listings: false,
+                         bid_range: { low: 0, high: 1000 } # unlicensed or low-tier
+                       },
+                       active: true
+                     },
+                     {
+                       name: "Pro",          # Class C
+                       price_cents: 2900,
+                       service_radius: 25,  # mid radius
+                       features: {
+                         max_listings: 10,
+                         max_bids_per_month: 10,
+                         messaging: true,
+                         featured_listings: true,
+                         can_bid_high_value: true,
+                         bid_range: { low: 0, high: 20_000 }
+                       },
+                       active: true
+                     },
+                     {
+                       name: "Elite",       # Class B
+                       price_cents: 6900,
+                       service_radius: 50,  # large radius
+                       features: {
+                         max_listings: 20,
+                         max_bids_per_month: 40,
+                         messaging: true,
+                         featured_listings: true,
+                         can_bid_high_value: true,
+                         bid_range: { low: 0, high: 100_000 }
+                       },
+                       active: true
+                     },
+                     {
+                       name: "Platinum",        # Class A
+                       price_cents: 9900,
+                       service_radius: 100, # max radius
+                       features: {
+                         max_listings: 9999,
+                         max_bids_per_month: 9999,
+                         messaging: true,
+                         featured_listings: true,
+                         can_bid_high_value: true,
+                         priority_support: true,
+                         bid_range: { low: 0, high: 1_000_000 } # effectively unlimited
+                       },
+                       active: true
+                     }
+                   ])
 puts "✅ Memberships seeded"
 
 # ===============================

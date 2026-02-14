@@ -1,5 +1,7 @@
 module Api
   class SessionsController < Api::BaseController
+    # Skip token authentication for login
+    skip_before_action :authenticate_request, only: [:create]
     def create
       user = User.find_for_database_authentication(email: params[:user][:email])
 

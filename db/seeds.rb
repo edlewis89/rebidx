@@ -128,7 +128,7 @@ puts "✅ License types seeded"
 # homeowner = User.create!(name: "Alice Homeowner", email: "alice@example.com", password: "password", role: :homeowner)
 # unlicensed_provider = User.create!(name: "Bob Repairs", email: "bob@example.com", password: "password", role: :service_provider)
 # licensed_contractor = User.create!(name: "Charlie Contractor", email: "pro@example.com", password: "password", role: :service_provider)
-admin = User.create!(name: "Admin User", email: "admin@example.com", password: "password", role: :rebidx_admin)
+admin = User.find_or_create_by(name: "Admin User", email: "admin@example.com", password: "password", role: :rebidx_admin)
 
 puts "✅ Users seeded"
 

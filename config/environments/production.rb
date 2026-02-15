@@ -130,6 +130,11 @@ Rails.application.configure do
   #   open_timeout: 5,                       # optional, shorter timeout
   #   read_timeout: 5
   # }
+  # Replace with your Render domain or custom domain
+  config.action_mailer.default_url_options = {
+    host: 'rebidx.onrender.com',
+    protocol: 'https'
+  }
 
   # Send Grid
   config.action_mailer.delivery_method = :smtp

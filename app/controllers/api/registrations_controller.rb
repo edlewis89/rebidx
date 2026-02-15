@@ -37,7 +37,7 @@ module Api
         :password,
         :password_confirmation,
         :role,
-        :zip_code,
+        :zipcode,
         :phone
       )
     end

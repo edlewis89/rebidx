@@ -1,0 +1,12 @@
+STRIPE_SECRET_KEY=your_stripe_secret_key
+STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+REDIS_URL=redis://localhost:6379/1
+COURT_LISTENER_API_KEY=b2e365cc702f0a65e1bde13c105f5ba3aa676c51
+devise_jwt_secret_key=71f8f7ded0e9abfbe0f3d6ba69865dcf5490362f399a22618e7c93d3376c0161106aeaa28212204d2b800ee23323975348c6c4f9e9ca9d0a61103937cda96d28
+# Geocoder for Production when scaling
+api_key=ENV['GOOGLE_MAPS_API_KEY']
+SMTP_ADDRESS=smtp.office365.com
+SMTP_PORT=587
+SMTP_USERNAME=ed@sixhattechnologies.com      # SendGrid uses 'apikey' literally as username
+SMTP_PASSWORD=Edw@rml5962
+SMTP_DOMAIN=sixhattechnologies.com

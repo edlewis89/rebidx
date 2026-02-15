@@ -13,18 +13,20 @@
 # ===============================
 # CLEAN SLATE
 # ===============================
-Bid.destroy_all
-ListingService.destroy_all
-Listing.destroy_all
-Property.destroy_all
-ProviderService.destroy_all
-ServiceProviderProfile.destroy_all
-Service.destroy_all
-LicenseType.destroy_all
-User.destroy_all
-Membership.destroy_all
-Notification.destroy_all
-Subscription.destroy_all
+unless Rails.env.production?
+  Bid.destroy_all
+  ListingService.destroy_all
+  Listing.destroy_all
+  Property.destroy_all
+  ProviderService.destroy_all
+  ServiceProviderProfile.destroy_all
+  Service.destroy_all
+  LicenseType.destroy_all
+  User.destroy_all
+  Membership.destroy_all
+  Notification.destroy_all
+  Subscription.destroy_all
+end
 
 puts "🌱 Seeding data..."
 

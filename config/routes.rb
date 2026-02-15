@@ -109,4 +109,8 @@ Rails.application.routes.draw do
   post "/choose-role", to: "roles#create"
   post "/webhooks/stripe", to: "webhooks#stripe"
   root "listings#index"
+
+  if Rails.env.development?
+    mount LetterOpenerWeb::Engine, at: "/letter_opener"
+  end
 end

@@ -113,18 +113,35 @@ Rails.application.configure do
   config.public_file_server.enabled = ENV["RAILS_SERVE_STATIC_FILES"].present?
   config.assets.compile = true
 
+  # config.action_mailer.delivery_method = :smtp
+  # config.action_mailer.perform_deliveries = true
+  # config.action_mailer.raise_delivery_errors = true
+  #
+  # config.action_mailer.default_url_options = { host: 'rebidx.onrender.com', protocol: 'https' }
+  #
+  # config.action_mailer.smtp_settings = {
+  #   address: ENV['SMTP_ADDRESS'],           # smtp.office365.com
+  #   port: ENV['SMTP_PORT'].to_i,           # 587
+  #   domain: ENV['SMTP_DOMAIN'],            # sixhattechnologies.com
+  #   user_name: ENV['SMTP_USERNAME'],       # ed@sixhattechnologies.com
+  #   password: ENV['SMTP_PASSWORD'],        # password or app password
+  #   authentication: :login,                # :login works for Office 365
+  #   enable_starttls_auto: true,
+  #   open_timeout: 5,                       # optional, shorter timeout
+  #   read_timeout: 5
+  # }
+
+  # Send Grid
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.perform_deliveries = true
   config.action_mailer.raise_delivery_errors = true
-  config.action_mailer.default_url_options = { host: 'rebidx.onrender.com' }
-
   config.action_mailer.smtp_settings = {
-    address:              ENV['SMTP_ADDRESS'] || 'smtp.office365.com',
-    port:                 ENV['SMTP_PORT'] || 587,
-    domain:               ENV['SMTP_DOMAIN'] || 'sixhattechnologies.com',
-    user_name:            ENV['SMTP_USERNAME'] || 'ed@sixhattechnologies.com',
-    password:             ENV['SMTP_PASSWORD'] || 'Edw@rml5962',
-    authentication:       :login,
+    user_name: ENV['SENDGRID_USERNAME'],      # usually 'apikey'
+    password: ENV['SENDGRID_API_KEY'],       # your actual API key
+    domain: 'sixhattechnologies.com',
+    address: 'smtp.sendgrid.net',
+    port: 587,
+    authentication: :plain,
     enable_starttls_auto: true
   }
 end

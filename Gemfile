@@ -64,6 +64,8 @@ group :development do
 
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
+  gem 'letter_opener'
+  gem 'letter_opener_web'
 end
 
 group :test do
@@ -82,3 +84,7 @@ gem 'redis', '~> 5.0' # or latest stable version
 gem 'connection_pool', '~> 2.2'
 gem 'devise-jwt' # API
 gem 'geocoder'
+gem 'sendgrid-ruby'
+gem 'sendgrid-actionmailer'
+
+

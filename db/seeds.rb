@@ -13,7 +13,7 @@
 # ===============================
 # CLEAN SLATE
 # ===============================
-#unless Rails.env.production?
+unless Rails.env.production?
   Bid.destroy_all
   ListingService.destroy_all
   Listing.destroy_all
@@ -26,7 +26,7 @@
   Membership.destroy_all
   Notification.destroy_all
   Subscription.destroy_all
-#end
+end
 
 puts "🌱 Seeding data..."
 

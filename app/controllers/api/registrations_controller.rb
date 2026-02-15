@@ -17,7 +17,14 @@ module Api
         # resource.create_homeowner_profile if resource.homeowner?
 
         # Send confirmation instructions
-        resource.send_confirmation_instructions
+        # resource.send_confirmation_instructions
+        confirmation_link = "#{ENV['APP_HOST']}/users/confirmation?confirmation_token=#{resource.confirmation_token}"
+
+        SendgridMailer.send_email(
+          to: resource.email,
+          subject: "Confirm your Rebidx account",
+          html: "<p>Click to confirm:</p><a href='#{confirmation_link}'>Confirm Account</a>"
+        )
 
         render json: {
           user: user_response(resource),

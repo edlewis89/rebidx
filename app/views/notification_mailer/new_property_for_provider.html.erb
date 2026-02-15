@@ -1,0 +1,13 @@
+<h2>New Property in Your Area</h2>
+
+<p>Hi <%= @provider.user.email %>,</p>
+
+<p>A homeowner posted a new property in your ZIP code.</p>
+
+<ul>
+  <li><strong>Title:</strong> <%= @property.title %></li>
+  <li><strong>City:</strong> <%= @property.city %></li>
+  <li><strong>ZIP:</strong> <%= @property.zipcode %></li>
+</ul>
+
+<p>Log in to Rebidx to view details.</p>

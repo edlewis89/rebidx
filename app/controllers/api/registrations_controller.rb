@@ -16,9 +16,12 @@ module Api
         # Optionally, create a homeowner profile here if you want symmetry
         # resource.create_homeowner_profile if resource.homeowner?
 
+        # Send confirmation instructions
+        resource.send_confirmation_instructions
+
         render json: {
           user: user_response(resource),
-          message: "#{resource.role.humanize} signed up successfully"
+          message: "Confirmation email sent to #{resource.email}. Please verify your email before logging in."
         }, status: :created
       else
         render json: { errors: resource.errors.full_messages }, status: :unprocessable_entity

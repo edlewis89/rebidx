@@ -83,6 +83,7 @@ Rails.application.configure do
 
   # Use a real queuing backend for Active Job (and separate queues per environment).
   # config.active_job.queue_adapter = :resque
+  config.active_job.queue_adapter = :async
   # config.active_job.queue_name_prefix = "rebidx_production"
 
   config.action_mailer.perform_caching = false
@@ -111,4 +112,19 @@ Rails.application.configure do
   # config.force_ssl = true
   config.public_file_server.enabled = ENV["RAILS_SERVE_STATIC_FILES"].present?
   config.assets.compile = true
+
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.perform_deliveries = true
+  config.action_mailer.raise_delivery_errors = true
+  config.action_mailer.default_url_options = { host: 'rebidx.onrender.com' }
+
+  config.action_mailer.smtp_settings = {
+    address:              ENV['SMTP_ADDRESS'] || 'smtp.office365.com',
+    port:                 ENV['SMTP_PORT'] || 587,
+    domain:               ENV['SMTP_DOMAIN'] || 'sixhattechnologies.com',
+    user_name:            ENV['SMTP_USERNAME'] || 'ed@sixhattechnologies.com',
+    password:             ENV['SMTP_PASSWORD'] || 'Edw@rml5962',
+    authentication:       :login,
+    enable_starttls_auto: true
+  }
 end

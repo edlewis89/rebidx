@@ -15,6 +15,7 @@ module Api
       property = current_user.properties.build(property_params)
 
       if property.save
+        notify_matching_providers(property)
         render json: property, status: :created
       else
         render json: { errors: property.errors.full_messages }, status: :unprocessable_entity
@@ -61,6 +62,17 @@ module Api
 
     def ensure_homeowner
       render json: { error: "Only homeowners can manage properties" }, status: :forbidden unless current_user.homeowner?
+    end
+
+    def notify_matching_providers(property)
+      providers = ServiceProviderProfile.joins(:user)
+                                        .where(zipcode: property.zipcode)
+
+      providers.find_each do |provider|
+        NotificationMailer
+          .new_property_for_provider(provider, property)
+          .deliver_later
+      end
     end
 
     def property_params

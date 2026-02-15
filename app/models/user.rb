@@ -4,6 +4,7 @@ class User < ApplicationRecord
          :recoverable,
          :rememberable,
          :validatable,
+         :confirmable,           # <-- add this
          :jwt_authenticatable,
          jwt_revocation_strategy: JwtDenylist
 

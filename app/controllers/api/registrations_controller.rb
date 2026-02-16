@@ -10,15 +10,14 @@ module Api
       build_resource(sign_up_params)
 
       if resource.save
-        # If service provider, create their profile
         resource.create_service_provider_profile if resource.service_provider?
 
-        # Send email confirmation asynchronously
-        SendgridMailer.confirmation_email(resource).deliver_now rescue nil
+        # Send confirmation email immediately
+        UserMailer.confirmation_email(resource).deliver_now
 
         render json: {
           user: user_response(resource),
-          message: "Signup successful! Confirmation email sent to #{resource.email}."
+          message: "Signup successful. Confirmation email sent to #{resource.email}."
         }, status: :created
       else
         render json: { errors: resource.errors.full_messages }, status: :unprocessable_entity

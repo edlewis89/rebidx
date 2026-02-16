@@ -153,7 +153,7 @@ Rails.application.configure do
   config.action_mailer.smtp_settings = {
     address:              'smtp.sendgrid.net',
     port:                 587,
-    domain:               'sixhattechnologies.com',
+    domain:               ENV['APP_DOMAIN'], # e.g. 'onrender.com'
     user_name:            'apikey',                # literal string "apikey"
     password:             ENV['SENDGRID_API_KEY'],
     authentication:       :plain,
@@ -162,5 +162,5 @@ Rails.application.configure do
     read_timeout: 20
   }
 
-  config.action_mailer.default_url_options = { host: ENV['APP_HOST'] }
+  config.action_mailer.default_url_options = { host: ENV['APP_HOST'], protocol: 'https' }
 end

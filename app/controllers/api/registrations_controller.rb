@@ -14,7 +14,7 @@ module Api
         resource.create_service_provider_profile if resource.service_provider?
 
         # Send email confirmation asynchronously
-        SendgridMailer.confirmation_email(resource).deliver_later
+        SendgridMailer.confirmation_email(resource).deliver_now rescue nil
 
         render json: {
           user: user_response(resource),

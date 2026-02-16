@@ -86,5 +86,7 @@ gem 'devise-jwt' # API
 gem 'geocoder'
 gem 'sendgrid-ruby'
 gem 'sendgrid-actionmailer'
+# Gemfile
+gem 'sidekiq'
 
 

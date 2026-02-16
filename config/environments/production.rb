@@ -83,7 +83,7 @@ Rails.application.configure do
 
   # Use a real queuing backend for Active Job (and separate queues per environment).
   # config.active_job.queue_adapter = :resque
-  config.active_job.queue_adapter = :async
+  config.active_job.queue_adapter = :sidekiq
   # config.active_job.queue_name_prefix = "rebidx_production"
 
   config.action_mailer.perform_caching = false
@@ -157,7 +157,9 @@ Rails.application.configure do
     user_name:            'apikey',                # literal string "apikey"
     password:             ENV['SENDGRID_API_KEY'],
     authentication:       :plain,
-    enable_starttls_auto: true
+    enable_starttls_auto: true,
+    open_timeout: 20,
+    read_timeout: 20
   }
 
   config.action_mailer.default_url_options = { host: ENV['APP_HOST'] }

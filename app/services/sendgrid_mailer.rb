@@ -2,6 +2,23 @@ require 'sendgrid-ruby'
 include SendGrid
 
 class SendgridMailer
+  default from: 'no-reply@sixhattechnologies.com'
+  def confirmation_email(user)
+
+    #  resource.generate_confirmation_token! if resource.respond_to?(:generate_confirmation_token!)
+    #  resource.save!
+
+    @user = user
+    confirmation_link = "#{ENV['APP_HOST']}/users/confirmation?confirmation_token=#{user.confirmation_token}"
+
+    mail(
+      to: @user.email,
+      subject: "Confirm your Rebidx account"
+    ) do |format|
+      format.html { render html: "<p>Click to confirm:</p><a href='#{confirmation_link}'>Confirm Account</a>".html_safe }
+    end
+  end
+
   def self.send_email(to:, subject:, html:)
     Rails.logger.info "SendGrid::SendEmail >>>> "
     sg = SendGrid::API.new(api_key: ENV['SENDGRID_API_KEY'])

@@ -10,33 +10,56 @@ module Api
       build_resource(sign_up_params)
 
       if resource.save
-        resource.generate_confirmation_token! if resource.respond_to?(:generate_confirmation_token!)
-        resource.save!
-
+        # If service provider, create their profile
         resource.create_service_provider_profile if resource.service_provider?
 
-        confirmation_link = "#{ENV['APP_HOST']}/users/confirmation?confirmation_token=#{resource.confirmation_token}"
-
-        Rails.logger.info("confirmation_link: #{confirmation_link}")
-
-        begin
-          SendgridMailer.send_email(
-            to: resource.email,
-            subject: "Confirm your Rebidx account",
-            html: "<p>Click to confirm:</p><a href='#{confirmation_link}'>Confirm Account</a>"
-          )
-        rescue => e
-          Rails.logger.error "SendGrid failed: #{e.message}"
-        end
+        # Send email confirmation asynchronously
+        SendgridMailer.confirmation_email(resource).deliver_later
 
         render json: {
           user: user_response(resource),
-          message: "Confirmation email sent to #{resource.email}. Please verify your email before logging in."
+          message: "Signup successful! Confirmation email sent to #{resource.email}."
         }, status: :created
       else
         render json: { errors: resource.errors.full_messages }, status: :unprocessable_entity
       end
+    rescue => e
+      Rails.logger.error "Signup failed: #{e.class} - #{e.message}"
+      render json: { error: "Signup failed: #{e.message}" }, status: :internal_server_error
     end
+
+    # POST /api/signup
+    # def create
+    #   build_resource(sign_up_params)
+    #
+    #   if resource.save
+    #     resource.generate_confirmation_token! if resource.respond_to?(:generate_confirmation_token!)
+    #     resource.save!
+    #
+    #     resource.create_service_provider_profile if resource.service_provider?
+    #
+    #     confirmation_link = "#{ENV['APP_HOST']}/users/confirmation?confirmation_token=#{resource.confirmation_token}"
+    #
+    #     Rails.logger.info("confirmation_link: #{confirmation_link}")
+    #
+    #     begin
+    #       SendgridMailer.send_email(
+    #         to: resource.email,
+    #         subject: "Confirm your Rebidx account",
+    #         html: "<p>Click to confirm:</p><a href='#{confirmation_link}'>Confirm Account</a>"
+    #       )
+    #     rescue => e
+    #       Rails.logger.error "SendGrid failed: #{e.message}"
+    #     end
+    #
+    #     render json: {
+    #       user: user_response(resource),
+    #       message: "Confirmation email sent to #{resource.email}. Please verify your email before logging in."
+    #     }, status: :created
+    #   else
+    #     render json: { errors: resource.errors.full_messages }, status: :unprocessable_entity
+    #   end
+    # end
 
     private
 

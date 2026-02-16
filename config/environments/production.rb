@@ -137,16 +137,28 @@ Rails.application.configure do
   }
 
   # Send Grid
+  # config.action_mailer.delivery_method = :smtp
+  # config.action_mailer.perform_deliveries = true
+  # config.action_mailer.raise_delivery_errors = true
+  # config.action_mailer.smtp_settings = {
+  #   user_name: ENV['SENDGRID_USERNAME'],      # usually 'apikey'
+  #   password: ENV['SENDGRID_API_KEY'],       # your actual API key
+  #   domain: 'sixhattechnologies.com',
+  #   address: 'smtp.sendgrid.net',
+  #   port: 587,
+  #   authentication: :plain,
+  #   enable_starttls_auto: true
+  # }
   config.action_mailer.delivery_method = :smtp
-  config.action_mailer.perform_deliveries = true
-  config.action_mailer.raise_delivery_errors = true
   config.action_mailer.smtp_settings = {
-    user_name: ENV['SENDGRID_USERNAME'],      # usually 'apikey'
-    password: ENV['SENDGRID_API_KEY'],       # your actual API key
-    domain: 'sixhattechnologies.com',
-    address: 'smtp.sendgrid.net',
-    port: 587,
-    authentication: :plain,
+    address:              'smtp.sendgrid.net',
+    port:                 587,
+    domain:               'sixhattechnologies.com',
+    user_name:            'apikey',                # literal string "apikey"
+    password:             ENV['SENDGRID_API_KEY'],
+    authentication:       :plain,
     enable_starttls_auto: true
   }
+
+  config.action_mailer.default_url_options = { host: ENV['APP_HOST'] }
 end

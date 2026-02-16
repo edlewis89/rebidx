@@ -10,21 +10,22 @@ module Api
       build_resource(sign_up_params)
 
       if resource.save
-        # If the user is a service provider, create profile
+        resource.generate_confirmation_token! if resource.respond_to?(:generate_confirmation_token!)
+        resource.save!
+
         resource.create_service_provider_profile if resource.service_provider?
 
-        # Optionally, create a homeowner profile here if you want symmetry
-        # resource.create_homeowner_profile if resource.homeowner?
-
-        # Send confirmation instructions
-        # resource.send_confirmation_instructions
         confirmation_link = "#{ENV['APP_HOST']}/users/confirmation?confirmation_token=#{resource.confirmation_token}"
 
-        SendgridMailer.send_email(
-          to: resource.email,
-          subject: "Confirm your Rebidx account",
-          html: "<p>Click to confirm:</p><a href='#{confirmation_link}'>Confirm Account</a>"
-        )
+        begin
+          SendgridMailer.send_email(
+            to: resource.email,
+            subject: "Confirm your Rebidx account",
+            html: "<p>Click to confirm:</p><a href='#{confirmation_link}'>Confirm Account</a>"
+          )
+        rescue => e
+          Rails.logger.error "SendGrid failed: #{e.message}"
+        end
 
         render json: {
           user: user_response(resource),

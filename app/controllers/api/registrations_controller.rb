@@ -17,6 +17,8 @@ module Api
 
         confirmation_link = "#{ENV['APP_HOST']}/users/confirmation?confirmation_token=#{resource.confirmation_token}"
 
+        Rails.logger.info("confirmation_link: #{confirmation_link}")
+
         begin
           SendgridMailer.send_email(
             to: resource.email,

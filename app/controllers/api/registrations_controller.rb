@@ -12,12 +12,23 @@ module Api
       if resource.save
         resource.create_service_provider_profile if resource.service_provider?
 
-        # Send confirmation email immediately
-        UserMailer.confirmation_email(resource).deliver_now
+        # 🔥 ONLY send confirmation if feature enabled
+        if FeatureFlags.email_verification_enabled?
+          begin
+            # Send confirmation email immediately
+            UserMailer.confirmation_email(resource).deliver_now
+          rescue => e
+            Rails.logger.error "Email confirmation failed: #{e.class} - #{e.message}"
+          end
+        else
+          # 🚀 Auto-confirm in dev / free tier
+          resource.confirm if resource.respond_to?(:confirm)
+        end
 
         render json: {
           user: user_response(resource),
-          message: "Signup successful. Confirmation email sent to #{resource.email}."
+          message: signup_message(resource)
+          # message: "Signup successful. Confirmation email sent to #{resource.email}."
         }, status: :created
       else
         render json: { errors: resource.errors.full_messages }, status: :unprocessable_entity

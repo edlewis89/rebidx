@@ -14,6 +14,14 @@ class AccessGate
   # --- Listings ---
   def can_create_listing?
     return false unless @membership.can_create_listing?
+
+    # --- HOMEOWNER RULE ---
+    if @user.homeowner?
+      return true unless FeatureFlags.email_verification_enabled?
+      return @user.confirmed?
+    end
+
+    # --- PROVIDER RULE ---
     return true unless licensed_provider?
 
     verified?

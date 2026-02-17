@@ -6,7 +6,9 @@ module Api
       user = User.find_for_database_authentication(email: params[:user][:email])
 
       if user&.valid_password?(params[:user][:password])
-        if !user.confirmed?
+
+        # 🔒 block login if verification required
+        if FeatureFlags.email_verification_enabled? && !user.confirmed?
           render json: { error: 'You must verify your email before logging in' }, status: :unauthorized
         else
           token, _payload = Warden::JWTAuth::UserEncoder.new.call(user, :user, nil)

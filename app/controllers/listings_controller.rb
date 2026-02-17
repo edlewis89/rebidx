@@ -65,7 +65,8 @@ class ListingsController < ApplicationController
   # POST /listings
   def create
     @listing = current_user.listings.build(listing_params)
-    gate = MembershipGate.new(current_user)
+
+    gate = AccessGate.new(current_user)
 
     unless gate.can_create_listing?
       NotificationService.send(

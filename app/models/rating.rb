@@ -15,7 +15,6 @@ class Rating < ApplicationRecord
   scope :completed, -> { where(status: :complete) }
   scope :open, -> { where(status: :pending) }
 
-
   private
 
   def bid_must_be_complete

@@ -6,7 +6,7 @@ class Profile < ApplicationRecord
   has_many :licenses, dependent: :destroy
   has_many :license_types, through: :licenses
 
-  has_many :bids
+  has_many :bids, dependent: :destroy
   has_many :ratings_received, through: :bids, source: :rating
 
   enum profile_type: { homeowner: 0, service_provider: 1, seller: 2, buyer: 3, investor: 2 }

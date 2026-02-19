@@ -17,7 +17,7 @@ class User < ApplicationRecord
   has_many :notifications, dependent: :destroy
   has_many :profiles, dependent: :destroy
   has_many :properties, dependent: :destroy
-  has_many :bids, dependent: :destroy
+  has_many :bids, through: :profiles, source: :bids
   has_many :listings, dependent: :destroy
   has_many :payments, dependent: :destroy
 

@@ -17,8 +17,8 @@ Bid.destroy_all
 ListingService.destroy_all
 Listing.destroy_all
 Property.destroy_all
-ProviderService.destroy_all
-ServiceProviderProfile.destroy_all
+ProfileService.destroy_all
+Profile.destroy_all
 Service.destroy_all
 LicenseType.destroy_all
 User.destroy_all
@@ -169,7 +169,7 @@ puts "✅ Services seeded"
 # ===============================
 # SERVICE PROVIDER PROFILES
 # ===============================
-profile_unlicensed = ServiceProviderProfile.create!(
+profile_unlicensed = Profile.create!(
   user: unlicensed_provider,
   profile_type: :service_provider,
   business_name: "Bob Repairs",
@@ -177,7 +177,7 @@ profile_unlicensed = ServiceProviderProfile.create!(
   tax_id: "123456789"
 )
 
-profile_contractor = ServiceProviderProfile.create!(
+profile_contractor = Profile.create!(
   user: licensed_contractor,
   profile_type: :service_provider,
   business_name: "Charlie's Construction",
@@ -240,7 +240,6 @@ ListingService.create!(listing: listing5, service: construction)
 
 puts "✅ Listing services linked"
 
-
 # ===============================
 # SECOND HOMEOWNER FOR TESTING
 # ===============================
@@ -249,6 +248,7 @@ puts "✅ Second homeowner seeded"
 
 Profile.create!(user: homeowner, profile_type: :homeowner, full_name: "Alice Homeowner")
 Profile.create!(user: homeowner2, profile_type: :homeowner, full_name: "Eve Homeowner")
+
 # Properties
 property4 = Property.create!(user: homeowner2, title: "Cedar Lane House", city: "Chicago", address: "101 Cedar Ln")
 property5 = Property.create!(user: homeowner2, title: "Pine Street Apartment", city: "Seattle", address: "202 Pine St")
@@ -282,7 +282,6 @@ def create_bid(user, profile, listing, amount, message)
 
   Bid.create!(
     listing: listing,
-    user: user,
     profile: profile,
     amount: amount,
     message: message,
@@ -290,6 +289,9 @@ def create_bid(user, profile, listing, amount, message)
   )
 end
 
+# Notes:
+#   profile.user is used inside the helper if you need the membership for bid limits.
+#     Any existing Bid controller logic that expected bid.user will need to be updated to bid.profile.user instead.
 
 # Unlicensed provider: only low-budget
 create_bid(unlicensed_provider, profile_unlicensed, listing1, 180, "Quick affordable fix")
@@ -312,121 +314,6 @@ puts "✅ Additional bids by Pro seeded to reach bid limit"
 
 puts "✅ Bids seeded respecting membership ranges"
 puts "🎉 SEEDING COMPLETE!"
-
-
-
-#
-#
-# # ===============================
-# #   LISTINGS (EXPANDED FOR TESTING)
-# # ===============================
-#
-# listing1 = Listing.create!(user: homeowner, property: property1, title: "Fix Kitchen Sink", description: "The sink is leaking badly", listing_type: :service, status: :open, budget: 200)
-# listing2 = Listing.create!(user: homeowner, property: property2, title: "Paint Living Room", description: "Need fresh paint in living room", listing_type: :service, status: :open, budget: 350)
-# listing3 = Listing.create!(user: homeowner, property: property2, title: "Shed framing repair", description: "Minor framing and reinforcement work", listing_type: :build_opportunity, status: :open, budget: 850)
-#
-# # Medium jobs (unlicensed allowed)
-# listing4 = Listing.create!(user: homeowner, property: property1, title: "Replace Bathroom Vanity", description: "Install new vanity and plumbing", listing_type: :service, status: :open, budget: 600)
-# listing5 = Listing.create!(user: homeowner, property: property3, title: "Deck Repair", description: "Fix loose boards and supports", listing_type: :service, status: :open, budget: 950)
-#
-# # High-value jobs (LICENSE REQUIRED)
-# listing6 = Listing.create!(user: homeowner, property: property3, title: "Kitchen Remodel", description: "Full remodel with permits", listing_type: :build_opportunity, status: :open, budget: 2_500)
-# listing7 = Listing.create!(user: homeowner, property: property2, title: "Roof Replacement", description: "Full roof tear-off and replacement", listing_type: :service, status: :open, budget: 8_000)
-# listing8 = Listing.create!(user: homeowner, property: property3, title: "Basement Expansion", description: "New basement room + inspection", listing_type: :build_opportunity, status: :open, budget: 24_000)
-#
-# puts "✅ Listings seeded (low, medium, high value)"
-#
-# # ===============================
-# # LISTING SERVICES
-# # ===============================
-# ListingService.create!(listing: listing1, service: plumbing)
-# ListingService.create!(listing: listing2, service: painting)
-# ListingService.create!(listing: listing3, service: construction)
-#
-# ListingService.create!(listing: listing4, service: plumbing)
-# ListingService.create!(listing: listing5, service: construction)
-#
-# ListingService.create!(listing: listing6, service: construction)
-# ListingService.create!(listing: listing7, service: roofing)
-# ListingService.create!(listing: listing8, service: construction)
-#
-# puts "✅ Listing services linked"
-#
-# # -------------------------------
-# # UNLICENSED PROVIDER (Bob)
-# # -------------------------------
-#
-# # Allowed bids (under $1000)
-# Bid.create!(listing: listing1, user: unlicensed_provider, amount: 180, message: "Fast fix", status: :pending)
-# Bid.create!(listing: listing2, user: unlicensed_provider, amount: 300, message: "Quality paint job", status: :pending)
-# Bid.create!(listing: listing3, user: unlicensed_provider, amount: 800, message: "Handled similar framing", status: :pending)
-# Bid.create!(listing: listing4, user: unlicensed_provider, amount: 550, message: "Can install vanity", status: :pending)
-# Bid.create!(listing: listing5, user: unlicensed_provider, amount: 900, message: "Deck repair specialist", status: :pending)
-#
-# # ❌ DO NOT seed illegal bids on high-value jobs — let UI test block instead
-# puts "✅ Unlicensed provider seeded with valid bids"
-#
-# # -------------------------------
-# # LICENSED PROVIDER (Charlie)
-# # -------------------------------
-#
-# Bid.create!(listing: listing3, user: licensed_contractor, amount: 875, message: "Licensed & insured", status: :pending)
-# Bid.create!(listing: listing6, user: licensed_contractor, amount: 2_300, message: "Kitchen remodel pros", status: :pending)
-# Bid.create!(listing: listing7, user: licensed_contractor, amount: 7_500, message: "Roofing crew ready", status: :pending)
-# Bid.create!(listing: listing8, user: licensed_contractor, amount: 23_000, message: "Full basement build + permits", status: :pending)
-#
-# puts "✅ Licensed contractor seeded with high-value bids"
-
-
-# # ===============================
-# # BIDS
-# # ===============================
-# # Handyman bids (ALLOWED)
-# Bid.create!(
-#   listing: listing1,
-#   user: unlicensed_provider,
-#   amount: 180,
-#   message: "Can fix this in 2 hours",
-#   status: :pending
-# )
-#
-# Bid.create!(
-#   listing: listing2,
-#   user: unlicensed_provider,
-#   amount: 320,
-#   message: "Professional painting, clean finish",
-#   status: :pending
-# )
-#
-# Bid.create!(
-#   listing: listing3,
-#   user: unlicensed_provider,
-#   amount: 800,
-#   message: "Handled similar framing jobs before",
-#   status: :pending
-# )
-#
-# # Contractor bids
-# Bid.create!(
-#   listing: listing3,
-#   user: licensed_contractor,
-#   amount: 900,
-#   message: "Licensed contractor, insured work",
-#   status: :pending
-# )
-#
-
-# Bid.create!(
-#   listing: listing4,
-#   user: licensed_contractor,
-#   amount: 23000,
-#   message: "Full crew, permits and inspections included",
-#   status: :pending
-# )
-
-# puts "✅ Bids seeded"
-#
-# puts "🎉 SEEDING COMPLETE!"
 
 
 

@@ -1,11 +1,15 @@
-class ServiceProviderProfile < ApplicationRecord
+class Profile < ApplicationRecord
   belongs_to :user
 
-  has_many :provider_services, dependent: :destroy
-  has_many :services, through: :provider_services
-  has_many :service_provider_licenses, dependent: :destroy
-  has_many :license_types, through: :service_provider_licenses
-  has_many :ratings
+  has_many :profile_services, dependent: :destroy
+  has_many :services, through: :profile_services
+  has_many :licenses, dependent: :destroy
+  has_many :license_types, through: :licenses
+
+  has_many :bids
+  has_many :ratings_received, through: :bids, source: :rating
+
+  enum profile_type: { homeowner: 0, service_provider: 1, seller: 2, buyer: 3, investor: 2 }
 
   has_one_attached :license do |attachable|
     attachable.variant :thumb, resize_to_limit: [250, 150], processor: :mini_magick
@@ -20,7 +24,12 @@ class ServiceProviderProfile < ApplicationRecord
     attachable.variant :thumb, resize_to_limit: [250, 150], processor: :mini_magick
   end
 
-  validates :business_name, :full_name, presence: true
+  # Validate business_name and full_name only if profile is a service provider
+  validates :business_name, :full_name, presence: true, if: :service_provider?
+
+  # Optional: you can validate tax_id or licenses too for providers
+  # validates :tax_id, presence: true, if: :service_provider?
+
   validates :tax_id, presence: true, if: -> { license_types.any?(&:requires_verification?) }
 
   # Delegate status methods
@@ -37,8 +46,16 @@ class ServiceProviderProfile < ApplicationRecord
     :will_save_change_to_state? ||
     :will_save_change_to_zipcode?
 
+  # Scope examples
+  scope :homeowners, -> { where(profile_type: :homeowner) }
+  scope :providers, -> { where(profile_type: :service_provider) }
+  scope :sellers, -> { where(profile_type: :seller) }
+  scope :buyers, -> { where(profile_type: :buyer) }
+  scope :investors, -> { where(profile_type: :investor) }
 
-
+  # Verified / unverified
+  scope :verified, -> { where(verified: true) }
+  scope :unverified, -> { where(verified: false) }
 
   # ---- Verification Access (READ ONLY) ----
 

@@ -56,16 +56,17 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_15_193003) do
   end
 
   create_table "bids", force: :cascade do |t|
-    t.bigint "user_id", null: false
+    t.bigint "profile_id", null: false
     t.bigint "listing_id", null: false
     t.decimal "amount", default: "0.0"
     t.text "message"
     t.text "terms"
-    t.integer "status", default: 0
+    t.integer "status", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["listing_id", "profile_id"], name: "index_bids_on_listing_id_and_profile_id", unique: true
     t.index ["listing_id"], name: "index_bids_on_listing_id"
-    t.index ["user_id"], name: "index_bids_on_user_id"
+    t.index ["profile_id"], name: "index_bids_on_profile_id"
   end
 
   create_table "jwt_denylists", force: :cascade do |t|
@@ -84,6 +85,18 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_15_193003) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "licenses", force: :cascade do |t|
+    t.bigint "profile_id", null: false
+    t.bigint "license_type_id", null: false
+    t.string "license_number"
+    t.string "state"
+    t.date "expires_on"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["license_type_id"], name: "index_licenses_on_license_type_id"
+    t.index ["profile_id"], name: "index_licenses_on_profile_id"
+  end
+
   create_table "listing_services", force: :cascade do |t|
     t.bigint "listing_id", null: false
     t.bigint "service_id", null: false
@@ -99,11 +112,23 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_15_193003) do
     t.string "title"
     t.text "description"
     t.integer "listing_type"
-    t.string "status"
+    t.integer "status", default: 0, null: false
     t.decimal "budget"
+    t.integer "asking_price"
+    t.integer "arv"
+    t.integer "estimated_rehab"
+    t.integer "estimated_rent"
+    t.integer "deal_type"
+    t.string "property_condition"
+    t.integer "max_purchase_price"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["arv"], name: "index_listings_on_arv"
+    t.index ["asking_price"], name: "index_listings_on_asking_price"
+    t.index ["deal_type"], name: "index_listings_on_deal_type"
+    t.index ["listing_type", "deal_type"], name: "index_listings_on_listing_type_and_deal_type"
     t.index ["property_id"], name: "index_listings_on_property_id"
+    t.index ["status"], name: "index_listings_on_status"
     t.index ["user_id"], name: "index_listings_on_user_id"
   end
 
@@ -146,61 +171,22 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_15_193003) do
     t.index ["user_id"], name: "index_payments_on_user_id"
   end
 
-  create_table "properties", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.string "title"
-    t.string "address"
-    t.string "city"
-    t.string "state"
-    t.integer "zipcode"
-    t.string "parcel_number"
-    t.integer "sqft"
-    t.string "zoning"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.float "latitude"
-    t.float "longitude"
-    t.index ["latitude", "longitude"], name: "index_properties_on_latitude_and_longitude"
-    t.index ["user_id"], name: "index_properties_on_user_id"
-  end
-
-  create_table "provider_services", force: :cascade do |t|
-    t.bigint "service_provider_profile_id", null: false
+  create_table "profile_services", force: :cascade do |t|
+    t.bigint "profile_id", null: false
     t.bigint "service_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["service_id"], name: "index_provider_services_on_service_id"
-    t.index ["service_provider_profile_id"], name: "index_provider_services_on_service_provider_profile_id"
+    t.index ["profile_id"], name: "index_profile_services_on_profile_id"
+    t.index ["service_id"], name: "index_profile_services_on_service_id"
   end
 
-  create_table "ratings", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "service_provider_profile_id", null: false
-    t.integer "score"
-    t.text "comment"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.bigint "bid_id", null: false
-    t.index ["bid_id"], name: "index_ratings_on_bid_id"
-    t.index ["service_provider_profile_id"], name: "index_ratings_on_service_provider_profile_id"
-    t.index ["user_id"], name: "index_ratings_on_user_id"
-  end
-
-  create_table "service_provider_licenses", force: :cascade do |t|
-    t.bigint "service_provider_profile_id", null: false
-    t.bigint "license_type_id", null: false
-    t.string "license_number"
-    t.string "state"
-    t.date "expires_on"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["license_type_id"], name: "index_service_provider_licenses_on_license_type_id"
-    t.index ["service_provider_profile_id"], name: "index_service_provider_licenses_on_service_provider_profile_id"
-  end
-
-  create_table "service_provider_profiles", force: :cascade do |t|
+  create_table "profiles", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "business_name"
+    t.integer "profile_type"
+    t.boolean "cash_buyer", default: false
+    t.string "investment_focus"
+    t.string "primary_market"
     t.boolean "verified", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -216,9 +202,41 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_15_193003) do
     t.string "zipcode"
     t.float "latitude"
     t.float "longitude"
-    t.index ["latitude", "longitude"], name: "index_service_provider_profiles_on_latitude_and_longitude"
-    t.index ["user_id"], name: "index_service_provider_profiles_on_user_id"
-    t.index ["verification_status"], name: "index_service_provider_profiles_on_verification_status"
+    t.index ["latitude", "longitude"], name: "index_profiles_on_latitude_and_longitude"
+    t.index ["profile_type"], name: "index_profiles_on_profile_type"
+    t.index ["user_id"], name: "index_profiles_on_user_id"
+    t.index ["verification_status"], name: "index_profiles_on_verification_status"
+  end
+
+  create_table "properties", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "title"
+    t.string "address"
+    t.string "city"
+    t.string "state"
+    t.string "zipcode"
+    t.string "parcel_number"
+    t.integer "sqft"
+    t.string "zoning"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.float "latitude"
+    t.float "longitude"
+    t.index ["latitude", "longitude"], name: "index_properties_on_latitude_and_longitude"
+    t.index ["user_id"], name: "index_properties_on_user_id"
+  end
+
+  create_table "ratings", force: :cascade do |t|
+    t.bigint "rater_id", null: false
+    t.bigint "profile_id", null: false
+    t.integer "score", null: false
+    t.text "review"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "bid_id", null: false
+    t.index ["bid_id"], name: "index_ratings_on_bid_id"
+    t.index ["profile_id"], name: "index_ratings_on_profile_id"
+    t.index ["rater_id"], name: "index_ratings_on_rater_id"
   end
 
   create_table "services", force: :cascade do |t|
@@ -286,7 +304,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_15_193003) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "bids", "listings"
-  add_foreign_key "bids", "users"
+  add_foreign_key "bids", "profiles"
+  add_foreign_key "licenses", "license_types"
+  add_foreign_key "licenses", "profiles"
   add_foreign_key "listing_services", "listings"
   add_foreign_key "listing_services", "services"
   add_foreign_key "listings", "properties"
@@ -295,15 +315,13 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_15_193003) do
   add_foreign_key "payments", "listings"
   add_foreign_key "payments", "memberships"
   add_foreign_key "payments", "users"
+  add_foreign_key "profile_services", "profiles"
+  add_foreign_key "profile_services", "services"
+  add_foreign_key "profiles", "users"
   add_foreign_key "properties", "users"
-  add_foreign_key "provider_services", "service_provider_profiles"
-  add_foreign_key "provider_services", "services"
   add_foreign_key "ratings", "bids"
-  add_foreign_key "ratings", "service_provider_profiles"
-  add_foreign_key "ratings", "users"
-  add_foreign_key "service_provider_licenses", "license_types"
-  add_foreign_key "service_provider_licenses", "service_provider_profiles"
-  add_foreign_key "service_provider_profiles", "users"
+  add_foreign_key "ratings", "profiles"
+  add_foreign_key "ratings", "users", column: "rater_id"
   add_foreign_key "subscriptions", "memberships"
   add_foreign_key "subscriptions", "users"
   add_foreign_key "verification_checks", "verification_profiles"

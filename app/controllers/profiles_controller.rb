@@ -4,22 +4,25 @@ class ProfilesController < ApplicationController
   before_action :set_services_and_license_types, only: [:edit, :update]
 
   def edit
-    # @profile is already set
-    # @services and @license_types set by before_action
+    # @profile, @services, @license_types are already set
   end
 
   def update
     ActiveRecord::Base.transaction do
       @profile.update!(profile_params)
 
-      # Services
-      @profile.services = Service.where(id: params[:service_ids])
+      # Assign services if this profile has them
+      if params[:service_ids].present? && @profile.respond_to?(:services)
+        @profile.services = Service.where(id: params[:service_ids])
+      end
 
-      # Licenses
-      @profile.license_types = LicenseType.where(id: params[:license_type_ids])
+      # Assign licenses if this profile has them
+      if params[:license_type_ids].present? && @profile.respond_to?(:license_types)
+        @profile.license_types = LicenseType.where(id: params[:license_type_ids])
+      end
 
       # Verification handling
-      if @profile.requires_verification?
+      if @profile.respond_to?(:requires_verification?) && @profile.requires_verification?
         @profile.update!(verified: false, verification_status: "pending")
       else
         @profile.update!(verified: true, verification_status: "not_required")
@@ -34,7 +37,8 @@ class ProfilesController < ApplicationController
   private
 
   def set_profile
-    @profile = current_user.service_provider_profile
+    # Grab a profile for the current user. You might adjust to select by type:
+    @profile = current_user.profiles.first # or use params[:id] if editing specific
   end
 
   def set_services_and_license_types
@@ -43,7 +47,7 @@ class ProfilesController < ApplicationController
   end
 
   def profile_params
-    params.require(:service_provider_profile).permit(
+    params.require(:profile).permit(
       :business_name, :full_name, :phone_number,
       :tax_id, :government_id, :business_license_number
     )

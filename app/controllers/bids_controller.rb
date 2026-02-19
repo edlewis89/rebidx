@@ -1,27 +1,37 @@
+# Bid belongs to profile, not user.
+# ensure_verified_profile now checks the profile via AccessGate.
+# Indexing and associations will follow the profile model, so multiple profiles per user can bid independently.
+# Ratings can now attach to the bidding profile.
+
 class BidsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_listing, only: [:new, :create]
-  before_action :ensure_verified_provider, only: [:new, :create]
+  before_action :ensure_verified_profile, only: [:new, :create]
   before_action :set_bid, only: [:accept, :reject, :withdrawn, :complete]
 
   # GET /listings/:listing_id/bids or /bids
   def index
     if params[:listing_id]
       @listing = Listing.find(params[:listing_id])
-      @bids = @listing.bids.includes(:user)
+      @bids = @listing.bids.includes(profile: :user)
     else
-      @bids = current_user.bids.includes(:listing)
+      # show all bids from any profile of the current user
+      @bids = Bid.joins(:profile)
+                 .where(profiles: { user_id: current_user.id })
+                 .includes(:listing)
     end
   end
 
   # GET /listings/:listing_id/bids/new
   def new
+    @profiles = current_user.profiles
     @bid = @listing.bids.build
   end
 
   # POST /listings/:listing_id/bids
   def create
-    @bid = @listing.bids.new(bid_params.merge(user: current_user))
+    profile = current_user.profiles.find(params[:profile_id])
+    @bid = @listing.bids.build(bid_params.merge(profile: profile))
     authorize @bid
 
     if @bid.save
@@ -29,6 +39,7 @@ class BidsController < ApplicationController
       redirect_to after_bid_redirect_path, notice: "Bid submitted successfully."
     else
       flash.now[:alert] = @bid.errors.full_messages.to_sentence
+      @profiles = current_user.profiles
       render :new, status: :unprocessable_entity
     end
   end
@@ -36,17 +47,17 @@ class BidsController < ApplicationController
   # PATCH /bids/:id/accept
   def accept
     authorize @bid
-    bidder = @bid.user
+    bidder_profile = @bid.profile
     listing_budget = @bid.listing.budget
 
-    # Handyman/unlicensed provider rule
-    if bidder.unlicensed_provider? && listing_budget > 1_000
+    # Unlicensed profile rule
+    if bidder_profile.unlicensed? && listing_budget > 1_000
       return redirect_to listing_path(@bid.listing),
                          alert: "Unlicensed providers may only be awarded jobs under $1,000."
     end
 
-    # Licensed provider must be verified for high-value jobs
-    if bidder.service_provider? && listing_budget > 1_000 && !bidder.verified_provider?
+    # Licensed profile must be verified for high-value jobs
+    if bidder_profile.requires_verification? && listing_budget > 1_000 && !bidder_profile.verified?
       return redirect_to listing_path(@bid.listing),
                          alert: "This provider must be verified for high-value jobs."
     end
@@ -71,6 +82,7 @@ class BidsController < ApplicationController
     redirect_to listing_path(@bid.listing), notice: "Bid rejected."
   end
 
+  # PATCH /bids/:id/withdrawn
   def withdrawn
     authorize @bid
 
@@ -81,7 +93,6 @@ class BidsController < ApplicationController
 
   # PATCH /bids/:id/complete
   def complete
-    # only homeowner of listing can mark as complete
     unless @bid.awarded? && @bid.listing.user == current_user
       return redirect_to homeowner_dashboard_path, alert: "You cannot complete this job."
     end
@@ -102,10 +113,9 @@ class BidsController < ApplicationController
 
   def set_bid
     if params[:admin_override]
-      # Admin bypasses ownership check
       @bid = Bid.find(params[:id])
     else
-      # Normal user: only bids on their listings
+      # only bids on listings of current user
       @bid = Bid.joins(:listing)
                 .where(listings: { user_id: current_user.id })
                 .find(params[:id])
@@ -116,19 +126,21 @@ class BidsController < ApplicationController
     params.require(:bid).permit(:amount, :message, :terms)
   end
 
-  def ensure_verified_provider
-    return unless current_user.service_provider? || current_user.unlicensed_provider?
+  def ensure_verified_profile
+    return unless current_user.profiles.any?
 
-    gate = AccessGate.new(current_user)
+    profile = current_user.profiles.find(params[:profile_id])
+    gate = AccessGate.new(profile) # AccessGate can take a profile instead of user
 
     unless gate.can_bid_on?(@listing)
       redirect_to provider_dashboard_path,
-                  alert: "You are not allowed to bid on this listing."
+                  alert: "This profile is not allowed to bid on this listing."
     end
   end
 
   def after_bid_redirect_path
-    if current_user.service_provider? || current_user.unlicensed_provider?
+    # redirect based on type of profile that placed the bid
+    if current_user.profiles.any? { |p| p.profile_type_provider? || p.unlicensed? }
       provider_dashboard_path
     elsif current_user.homeowner?
       homeowner_dashboard_path
@@ -137,6 +149,7 @@ class BidsController < ApplicationController
     end
   end
 end
+
 # class BidsController < ApplicationController
 #   before_action :authenticate_user!
 #   before_action :set_listing, only: [:new, :create]

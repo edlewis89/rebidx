@@ -171,6 +171,7 @@ puts "✅ Services seeded"
 # ===============================
 profile_unlicensed = ServiceProviderProfile.create!(
   user: unlicensed_provider,
+  profile_type: :service_provider,
   business_name: "Bob Repairs",
   full_name: "Bob Seiger",
   tax_id: "123456789"
@@ -178,6 +179,7 @@ profile_unlicensed = ServiceProviderProfile.create!(
 
 profile_contractor = ServiceProviderProfile.create!(
   user: licensed_contractor,
+  profile_type: :service_provider,
   business_name: "Charlie's Construction",
   full_name: "Charlie Sheen",
   tax_id: "987654321"
@@ -189,13 +191,20 @@ puts "✅ Provider profiles seeded"
 profile_contractor.license_types << class_c
 puts "✅ Provider license types assigned"
 
+# # Provider services
+# [plumbing, painting, construction].each do |svc|
+#   ProviderService.create!(service_provider_profile: profile_unlicensed, service: svc)
+# end
 # Provider services
 [plumbing, painting, construction].each do |svc|
-  ProviderService.create!(service_provider_profile: profile_unlicensed, service: svc)
+  profile_unlicensed.services << svc
 end
 
+# [plumbing, electrical, roofing, construction].each do |svc|
+#   ProviderService.create!(service_provider_profile: profile_contractor, service: svc)
+# end
 [plumbing, electrical, roofing, construction].each do |svc|
-  ProviderService.create!(service_provider_profile: profile_contractor, service: svc)
+  profile_contractor.services << svc
 end
 
 puts "✅ Provider services seeded"
@@ -238,6 +247,8 @@ puts "✅ Listing services linked"
 homeowner2 = User.create!(name: "Eve Homeowner", email: "eve@example.com", password: "password", role: :homeowner)
 puts "✅ Second homeowner seeded"
 
+Profile.create!(user: homeowner, profile_type: :homeowner, full_name: "Alice Homeowner")
+Profile.create!(user: homeowner2, profile_type: :homeowner, full_name: "Eve Homeowner")
 # Properties
 property4 = Property.create!(user: homeowner2, title: "Cedar Lane House", city: "Chicago", address: "101 Cedar Ln")
 property5 = Property.create!(user: homeowner2, title: "Pine Street Apartment", city: "Seattle", address: "202 Pine St")
@@ -260,52 +271,41 @@ puts "✅ Listing services linked for second homeowner"
 # ===============================
 # BIDS — respect membership bid ranges
 # ===============================
-def create_bid(user, listing, amount, message)
+def create_bid(user, profile, listing, amount, message)
   membership = user.subscription&.membership
-  unless membership
-    puts "Skipped bid for #{user.name} on listing #{listing.id} — no active membership"
-    return
-  end
+  return unless membership
 
   bid_range = membership.features["bid_range"]
   min = bid_range["low"]
   max = bid_range["high"]
+  return if amount < min || amount > max
 
-  if amount < min || amount > max
-    puts "Skipped bid for #{user.name} on listing #{listing.id} — amount #{amount} out of range (#{min}-#{max})"
-    return
-  end
-
-  bid = Bid.create(
+  Bid.create!(
     listing: listing,
     user: user,
+    profile: profile,
     amount: amount,
     message: message,
     status: :pending
   )
-
-  if bid.persisted?
-    puts "Created bid for #{user.name} on listing #{listing.id} — $#{amount}"
-  else
-    puts "Failed to create bid: #{bid.errors.full_messages.join(", ")}"
-  end
 end
 
+
 # Unlicensed provider: only low-budget
-create_bid(unlicensed_provider, listing1, 180, "Quick affordable fix")
-create_bid(unlicensed_provider, listing2, 300, "Clean professional job")
-create_bid(unlicensed_provider, listing3, 750, "Handled similar framing before")
-create_bid(unlicensed_provider, listing4, 900, "Attempt high job — should be blocked by range")
+create_bid(unlicensed_provider, profile_unlicensed, listing1, 180, "Quick affordable fix")
+create_bid(unlicensed_provider, profile_unlicensed, listing2, 300, "Clean professional job")
+create_bid(unlicensed_provider, profile_unlicensed, listing3, 750, "Handled similar framing before")
+create_bid(unlicensed_provider, profile_unlicensed, listing4, 900, "Attempt high job — should be blocked by range")
 
 # Licensed contractor: full range
-create_bid(licensed_contractor, listing3, 900, "Licensed, insured, fast turnaround")
-create_bid(licensed_contractor, listing4, 2_200, "Bathroom remodel with permits")
-create_bid(licensed_contractor, listing5, 23_000, "Full crew, inspections included")
+create_bid(licensed_contractor, profile_contractor, listing3, 900, "Licensed, insured, fast turnaround")
+create_bid(licensed_contractor, profile_contractor, listing4, 2_200, "Bathroom remodel with permits")
+create_bid(licensed_contractor, profile_contractor, listing5, 23_000, "Full crew, inspections included")
 # create_bid(licensed_contractor, listing6, 11_500, "Roof replacement with warranty")
 
 # Optional: Pro places bids to hit limit
-create_bid(licensed_contractor, listing7, 280, "Quick plumbing fix")
-create_bid(licensed_contractor, listing8, 400, "Painting with high finish")
+create_bid(licensed_contractor, profile_contractor, listing7, 280, "Quick plumbing fix")
+create_bid(licensed_contractor, profile_contractor, listing8, 400, "Painting with high finish")
 # create_bid(licensed_contractor, listing9, 900, "Deck repair by licensed team")
 puts "✅ Additional bids by Pro seeded to reach bid limit"
 

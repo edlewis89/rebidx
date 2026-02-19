@@ -10,17 +10,19 @@ class User < ApplicationRecord
 
   after_create :assign_default_membership
 
-  has_one :service_provider_profile, dependent: :destroy
   has_one :subscription, dependent: :destroy
   has_one :membership, through: :subscription
   has_one :verification_profile, dependent: :destroy
-  has_many :notifications, dependent: :destroy
 
-  has_many :bids
-  has_many :listings
-  has_many :properties
+  has_many :notifications, dependent: :destroy
+  has_many :profiles, dependent: :destroy
+  has_many :properties, dependent: :destroy
+  has_many :bids, dependent: :destroy
+  has_many :listings, dependent: :destroy
   has_many :payments, dependent: :destroy
-  has_many :ratings_given, class_name: "Rating"
+
+  has_many :profiles, dependent: :destroy
+  has_many :ratings_received, through: :profiles, source: :ratings_received
 
   enum role: {
     unassigned: 0,
@@ -48,16 +50,16 @@ class User < ApplicationRecord
   end
 
   def handyman?
-    service_provider? && (service_provider_profile.nil? || !service_provider_profile.license_uploaded?)
+    service_provider? && (profile.nil? || !profile.license_uploaded?)
   end
 
   # ---- License / Verification Helpers ----
   def licensed_provider?
-    service_provider_profile&.license_uploaded?
+    profile&.license_uploaded?
   end
 
   def verified_provider?
-    service_provider_profile&.verified_provider?
+    profile&.verified_provider?
   end
 
   # def bid_range
@@ -73,8 +75,8 @@ class User < ApplicationRecord
   end
 
   def provider_onboarded?
-    service_provider? && service_provider_profile.present? &&
-      service_provider_profile.completed? # define `completed?` in profile
+    service_provider? && profile.present? &&
+      profile.completed? # define `completed?` in profile
   end
 
   def assign_default_membership
@@ -84,8 +86,6 @@ class User < ApplicationRecord
 
   # ---- Reason a user cannot bid ----
   def cannot_bid_reason(listing)
-    profile = service_provider_profile
-
     # Handyman / unlicensed
     if profile.nil? || !profile.license_uploaded?
       return "You can only bid on jobs $1,000 or less" if listing.budget.to_f > 1_000
@@ -104,7 +104,7 @@ class User < ApplicationRecord
   end
 
   def unlicensed_provider?
-    service_provider? && service_provider_profile&.license_types.blank?
+    service_provider? && profile&.license_types.blank?
   end
 
   # Return the allowed bid range [low, high] from current membership

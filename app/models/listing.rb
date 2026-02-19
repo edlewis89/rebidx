@@ -12,16 +12,23 @@ class Listing < ApplicationRecord
   enum listing_type: {
     service: 0,
     property_sale: 1,
-    build_opportunity: 2
+    build_opportunity: 2,
+    investment_opportunity: 3
   }
 
   enum status: {
-    open: "open",
-    awarded: "awarded",
-    in_progress: "in_progress",
-    complete: "complete",
-    cancelled: "cancelled",
-    expired: "expired"
+    open: 0,
+    awarded: 1,
+    in_progress: 2,
+    complete: 3,
+    cancelled: 4,
+    expired: 5
+  }
+
+  enum deal_type: {
+    flip: 0,
+    buy_hold: 1,
+    wholesale: 2
   }
 
   validates :title, :description, :budget, presence: true

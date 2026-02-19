@@ -145,13 +145,17 @@ puts "✅ License types seeded"
 # unlicensed_provider = User.create!(name: "Bob Repairs", email: "bob@example.com", password: "password", role: :service_provider)
 # licensed_contractor = User.create!(name: "Charlie Contractor", email: "pro@example.com", password: "password", role: :service_provider)
 # admin = User.find_or_create_by(name: "Admin User", email: "admin@example.com", password: "password", role: :rebidx_admin)
-User.find_or_initialize_by(email: "admin@example.com").tap do |user|
+User.skip_callback(:create, :after, :send_confirmation_instructions)
+
+User.find_or_initialize_by(email: "ed@sixhattechnologies.com").tap do |user|
   user.name = "Ed Lewis (Admin)"
-  user.password = "password"
-  user.password_confirmation = "password"
+  user.password = "sixhattech"
+  user.password_confirmation = "sixhattech"
   user.role = :rebidx_admin
   user.save!
 end
+
+User.set_callback(:create, :after, :send_confirmation_instructions)
 
 puts "✅ Users seeded"
 

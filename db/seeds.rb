@@ -312,5 +312,10 @@ create_bid(licensed_contractor, profile_contractor, listing8, 400, "Painting wit
 puts "✅ Additional bids by Pro seeded to reach bid limit"
 
 
+# Key points:
+#  Bids reference profile_id, not user_id.
+#  To get all bids for a user:
+#    user1_bids = Bid.joins(:profile).where(profiles: { user_id: user1.id })
+
 puts "✅ Bids seeded respecting membership ranges"
 puts "🎉 SEEDING COMPLETE!"

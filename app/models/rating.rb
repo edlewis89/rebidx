@@ -2,7 +2,9 @@ class Rating < ApplicationRecord
   belongs_to :bid
   has_one :profile, through: :bid
 
-  belongs_to :user         # the rater (homeowner)
+  # Correct association for the rater
+  belongs_to :rater, class_name: "User", foreign_key: "rater_id"
+
   delegate :service_provider, to: :bid   # convenience
 
   validates :bid_id, uniqueness: true

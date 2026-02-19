@@ -34,21 +34,48 @@ class Bid < ApplicationRecord
   validate :bid_within_membership_range
   validate :only_one_awarded_bid, on: :update
 
+  # -------------------------------
+  # Scopes # Class Level
+  # -------------------------------
+
+  # All bids made by a specific user
+  scope :for_user, ->(user_id) { joins(:profile).where(profiles: { user_id: user_id }) }
+
+  # All bids on a user's listings
+  scope :on_user_listings, ->(user_id) { joins(:listing).where(listings: { user_id: user_id }) }
+
+  # Pending bids
+  scope :pending, -> { where(status: :pending) }
+
+  # Accepted bids
+  scope :accepted, -> { where(status: :accepted) }
+
+  # Rejected bids
+  scope :rejected, -> { where(status: :rejected) }
+
   # =========================
   # HELPERS
   # =========================
+  # Access the user who placed this bid
+  def user
+    profile.user
+  end
 
   def can_rate?
     complete?
   end
 
+  # Access the membership of the user who placed this bid
+  def user_membership
+    user.subscription&.membership
+  end
+
   private
 
   def bid_within_membership_range
-    membership = profile&.user&.subscription&.membership
-    return unless membership && listing
+    return unless user_membership && listing
 
-    range = membership.features["bid_range"] || { "low" => 0, "high" => 1_000 }
+    range = user_membership.features["bid_range"] || { "low" => 0, "high" => 1_000 }
     high = range["high"].to_f
 
     if amount.to_f > high

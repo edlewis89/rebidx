@@ -13,7 +13,7 @@
 # ===============================
 # CLEAN SLATE
 # ===============================
-
+unless Rails.env.production?
   Rating.destroy_all
   Bid.destroy_all
   ListingService.destroy_all
@@ -26,7 +26,7 @@
   Notification.destroy_all
   Subscription.destroy_all
   LicenseType.destroy_all
-
+end
 
 puts "🌱 Seeding data..."
 
@@ -152,7 +152,7 @@ User.find_or_initialize_by(email: "ed@sixhattechnologies.com").tap do |user|
   user.password = "sixhattech"
   user.password_confirmation = "sixhattech"
   user.role = :rebidx_admin
-  user.confirmed_at = Time.now  # skips confirmation email
+  user.confirmed_at = Time.now() # skips sending email
   user.save!
 end
 

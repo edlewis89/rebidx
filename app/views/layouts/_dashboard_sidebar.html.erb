@@ -53,6 +53,28 @@
                                onchange: "this.form.requestSubmit()" %>
         </div>
 
+        <!-- Property Type -->
+        <div class="mb-3">
+          <label class="small fw-bold">Property Type</label>
+
+          <% Listing::PROPERTY_TYPES.each do |ptype| %>
+            <div class="form-check">
+              <%= radio_button_tag :property_type,
+                                   ptype,
+                                   params[:property_type] == ptype,
+                                   class: "form-check-input",
+                                   onchange: "this.form.requestSubmit()" %>
+
+              <label class="form-check-label small">
+                <%= ptype.humanize.titleize %>
+                <% if defined?(@facets) && @facets.dig(:property_type, ptype) %>
+                  (<%= @facets[:property_type][ptype] %>)
+                <% end %>
+              </label>
+            </div>
+          <% end %>
+        </div>
+
       <% end %>
     </div>
 

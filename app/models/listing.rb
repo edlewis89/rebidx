@@ -12,14 +12,18 @@ class Listing < ApplicationRecord
   before_save :update_search_vector
 
   PROPERTY_TYPES = %w[
-    single_family
-    condo
-    townhouse
-    multi_family
-    land
-    manufactured
-    commercial
-  ].freeze
+  single_family
+  condo
+  townhouse
+  multi_family
+  duplex
+  triplex
+  quadplex
+  manufactured
+  land
+  commercial
+  mixed_use
+].freeze
 
 
 
@@ -93,6 +97,10 @@ class Listing < ApplicationRecord
     end
   }
 
+  scope :by_property_type, ->(type) {
+    where(property_type: type) if type.present?
+  }
+
   scope :single_family, -> { where(property_type: "single_family") }
 
   def self.faceted_search(params)
@@ -114,6 +122,7 @@ class Listing < ApplicationRecord
     results = results.max_budget(params[:max_budget])
     results = results.by_deal_type(params[:deal_type])
     results = results.by_condition(params[:property_condition])
+    results = results.by_property_type(params[:property_type])
 
     results.distinct
   end
@@ -123,7 +132,8 @@ class Listing < ApplicationRecord
       listing_type: base_relation.group(:listing_type).count,
       status: base_relation.group(:status).count,
       deal_type: base_relation.group(:deal_type).count,
-      property_condition: base_relation.group(:property_condition).count
+      property_condition: base_relation.group(:property_condition).count,
+      property_type: base_relation.group(:property_type).count # ✅ ADD THIS
     }
   end
   # Return the bid that was awarded, even if completed

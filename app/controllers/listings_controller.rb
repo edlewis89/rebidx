@@ -165,6 +165,7 @@ class ListingsController < ApplicationController
       :max_budget,
       :deal_type,
       :property_condition,
+      :property_type,
       service_ids: []
     )
   end

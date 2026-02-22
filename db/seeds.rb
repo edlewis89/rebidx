@@ -145,7 +145,7 @@ puts "✅ Properties seeded"
 # LISTINGS
 # ===============================
 # Alice's listings
-listing1 = Listing.create!(user: homeowner1, property: property1, title: "Fix Kitchen Sink", description: "The sink is leaking badly", listing_type: :service, status: :open, budget: 200)
+listing1 = Listing.create!(user: homeowner1, property: property1, property_type: "condo", title: "Fix Kitchen Sink", description: "The sink is leaking badly", listing_type: :service, status: :open, budget: 200)
 listing2 = Listing.create!(user: homeowner1, property: property2, title: "Paint Living Room", description: "Need fresh paint in living room", listing_type: :service, status: :open, budget: 350)
 listing3 = Listing.create!(user: homeowner1, property: property2, title: "Shed framing repair", description: "Minor framing and reinforcement work", listing_type: :build_opportunity, status: :open, budget: 850)
 listing4 = Listing.create!(user: homeowner1, property: property3, title: "Bathroom Remodel", description: "Mid-level bathroom upgrade", listing_type: :build_opportunity, status: :open, budget: 2_500)
@@ -155,11 +155,11 @@ listing_pet2 = Listing.create!(user: homeowner1, property: property3, title: "Pe
 
 # Eve's listings
 listing7 = Listing.create!(user: homeowner2, property: property4, title: "Fix Leaky Faucet", description: "Kitchen faucet leaking", listing_type: :service, status: :open, budget: 300)
-listing8 = Listing.create!(user: homeowner2, property: property5, title: "Paint Bedroom", description: "Need bedroom painted", listing_type: :service, status: :open, budget: 450)
+listing8 = Listing.create!(user: homeowner2, property: property5, property_type: "condo", title: "Paint Bedroom", description: "Need bedroom painted", listing_type: :service, status: :open, budget: 450)
 listing_repair2 = Listing.create!(user: homeowner2, property: property4, title: "Deck Repair & Staining", description: "Minor deck repairs plus staining for protection", listing_type: :service, status: :open, budget: 900)
-listing_pet1 = Listing.create!(user: homeowner2, property: property5, title: "Dog Sitting Needed", description: "Looking for dog walker/sitter for 3 days next week", listing_type: :service, status: :open, budget: 150)
+listing_pet1 = Listing.create!(user: homeowner2, property: property5, property_type: "condo", title: "Dog Sitting Needed", description: "Looking for dog walker/sitter for 3 days next week", listing_type: :service, status: :open, budget: 150)
 listing_flip1 = Listing.create!(user: homeowner2, property: property6, title: "Fix & Flip: Birchwood Villa", description: "Quick flip opportunity; minor renovations needed", listing_type: :investment_opportunity, status: :open, budget: 40_000, deal_type: :flip)
-listing_flip2 = Listing.create!(user: homeowner2, property: property5, title: "Oak Street Flip", description: "Opportunity to flip mid-range apartment", listing_type: :investment_opportunity, status: :open, budget: 25_000, deal_type: :flip)
+listing_flip2 = Listing.create!(user: homeowner2, property: property5, property_type: "multi_family", title: "Oak Street Flip", description: "Opportunity to flip mid-range apartment", listing_type: :investment_opportunity, status: :open, budget: 25_000, deal_type: :flip)
 puts "✅ Listings created"
 
 # ===============================

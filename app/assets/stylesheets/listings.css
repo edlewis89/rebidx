@@ -1,0 +1,14 @@
+/* Sidebar */
+
+.sidebar-sticky {
+    position: sticky;
+    top: 0;
+}
+
+.form-check {
+    margin-bottom: 4px;
+}
+
+.filters label {
+    font-weight: 600;
+}

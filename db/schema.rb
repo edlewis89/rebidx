@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_15_170031) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_20_151911) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -123,11 +123,13 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_15_170031) do
     t.integer "max_purchase_price"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.tsvector "search_vector"
     t.index ["arv"], name: "index_listings_on_arv"
     t.index ["asking_price"], name: "index_listings_on_asking_price"
     t.index ["deal_type"], name: "index_listings_on_deal_type"
     t.index ["listing_type", "deal_type"], name: "index_listings_on_listing_type_and_deal_type"
     t.index ["property_id"], name: "index_listings_on_property_id"
+    t.index ["search_vector"], name: "index_listings_on_search_vector", using: :gin
     t.index ["status"], name: "index_listings_on_status"
     t.index ["user_id"], name: "index_listings_on_user_id"
   end

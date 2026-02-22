@@ -15,34 +15,41 @@ class ListingsController < ApplicationController
 
   # GET /listings
   def index
-    if current_user
-      if current_user.profiles.any?
-        # Providers see listings they can bid on
-        profile = current_user.profiles.first # could let them select profile
+    Rails.logger.debug "FACET PARAMS: #{params.to_unsafe_h}"
+    base_scope =
+      if current_user&.profiles&.any?
+        profile = current_user.profiles.first
         gate = AccessGate.new(profile)
 
-        @listings = Listing.open.joins(:services)
-                           .where(services: { id: profile.service_ids })
-                           .distinct
+        if profile.service_provider?
+          scope = Listing.open
+                         .joins(:services)
+                         .where(services: { id: profile.service_ids })
+                         .distinct
 
-        # Unlicensed providers: only jobs <= $1,000
-        unless profile.licensed?
-          @listings = @listings.where("budget <= ?", 1_000)
+          # Unlicensed providers: only jobs <= $1,000
+          scope = scope.where("budget <= ?", 1_000) unless profile.licensed?
+
+          @my_bids = current_user.bids.includes(:listing)
+          @bids_remaining = gate.bids_remaining
+
+          scope
+
+        elsif profile.homeowner?
+          profile.listings.includes(:services)
+
+        else
+          Listing.open.includes(:services)
         end
-
-        # My bids
-        @my_bids = current_user.bids.includes(:listing)
-        @bids_remaining = gate.bids_remaining
-      elsif current_user.profiles.any?
-        # Homeowners see their own listings
-        profile = current_user.profiles.first
-        @listings = profile.listings.includes(:services)
       else
-        @listings = Listing.open.includes(:services)
+        Listing.open.includes(:services)
       end
-    else
-      @listings = Listing.open.includes(:services)
-    end
+
+    # ✅ apply faceted search ON TOP of permission scope
+    filtered = base_scope.faceted_search(search_params)
+
+    @listings = filtered.order(created_at: :desc).limit(50)
+    @facets   = Listing.facet_counts(filtered)
   end
 
   # GET /listings/:id
@@ -149,15 +156,15 @@ class ListingsController < ApplicationController
     throw(:abort) if bids.exists?
   end
 
-  def listing_params
-    params.require(:listing).permit(
-      :title,
-      :description,
-      :budget,
+  def search_params
+    params.permit(
+      :q,
       :listing_type,
-      :property_id,
-      :property_title,
-      :property_address,
+      :status,
+      :min_budget,
+      :max_budget,
+      :deal_type,
+      :property_condition,
       service_ids: []
     )
   end

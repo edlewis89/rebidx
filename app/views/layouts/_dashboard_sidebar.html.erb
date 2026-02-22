@@ -1,5 +1,63 @@
-<div class="d-flex flex-column bg-light p-3" style="width: 220px; min-height: 100vh;">
+<div class="d-flex flex-column bg-light p-3 sidebar-sticky"
+     style="width: 220px; min-height: 100vh;">
+  <% if controller_name == "listings" %>
+    <div class="mb-4">
+      <h6 class="text-uppercase text-muted">Search</h6>
 
+      <%= form_with url: listings_path, method: :get, local: true do %>
+
+        <!-- Keyword -->
+        <div class="mb-2">
+          <%= text_field_tag :q,
+                             params[:q],
+                             placeholder: "Search jobs…",
+                             class: "form-control form-control-sm",
+                             onchange: "this.form.requestSubmit()" %>
+        </div>
+
+        <!-- Services -->
+        <div class="mb-3">
+          <label class="small fw-bold">Services</label>
+          <% Service.order(:name).each do |service| %>
+            <div class="form-check">
+              <%= check_box_tag "service_ids[]",
+                                service.id,
+                                Array(params[:service_ids]).map(&:to_i).include?(service.id),
+                                class: "form-check-input",
+                                onchange: "this.form.requestSubmit()" %>
+
+              <label class="form-check-label small">
+                <%= service.name %>
+                <% if defined?(@facets) && @facets.dig(:services, service.id) %>
+                  (<%= @facets[:services][service.id] %>)
+                <% end %>
+              </label>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Budget -->
+        <div class="mb-3">
+          <label class="small fw-bold">Budget</label>
+
+          <%= number_field_tag :min_budget,
+                               params[:min_budget],
+                               placeholder: "Min",
+                               class: "form-control form-control-sm mb-1",
+                               onchange: "this.form.requestSubmit()" %>
+
+          <%= number_field_tag :max_budget,
+                               params[:max_budget],
+                               placeholder: "Max",
+                               class: "form-control form-control-sm",
+                               onchange: "this.form.requestSubmit()" %>
+        </div>
+
+      <% end %>
+    </div>
+
+    <hr>
+  <% end %>
 
   <div class="advertisements">
     <p class="text-muted small">

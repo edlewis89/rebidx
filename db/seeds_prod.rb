@@ -14,18 +14,18 @@
 # CLEAN SLATE
 # ===============================
 unless Rails.env.production?
+  Rating.destroy_all
   Bid.destroy_all
   ListingService.destroy_all
   Listing.destroy_all
   Property.destroy_all
   ProfileService.destroy_all
   Profile.destroy_all
-  Service.destroy_all
-  LicenseType.destroy_all
   User.destroy_all
   Membership.destroy_all
   Notification.destroy_all
   Subscription.destroy_all
+  LicenseType.destroy_all
 end
 
 puts "🌱 Seeding data..."
@@ -145,17 +145,18 @@ puts "✅ License types seeded"
 # unlicensed_provider = User.create!(name: "Bob Repairs", email: "bob@example.com", password: "password", role: :service_provider)
 # licensed_contractor = User.create!(name: "Charlie Contractor", email: "pro@example.com", password: "password", role: :service_provider)
 # admin = User.find_or_create_by(name: "Admin User", email: "admin@example.com", password: "password", role: :rebidx_admin)
-User.skip_callback(:create, :after, :send_confirmation_instructions)
+# User.skip_callback(:create, :after, :send_confirmation_instructions)
 
 User.find_or_initialize_by(email: "ed@sixhattechnologies.com").tap do |user|
   user.name = "Ed Lewis (Admin)"
   user.password = "sixhattech"
   user.password_confirmation = "sixhattech"
   user.role = :rebidx_admin
+  user.confirmed_at = Time.now() # skips sending email
   user.save!
 end
 
-User.set_callback(:create, :after, :send_confirmation_instructions)
+# User.set_callback(:create, :after, :send_confirmation_instructions)
 
 puts "✅ Users seeded"
 

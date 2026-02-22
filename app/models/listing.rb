@@ -9,6 +9,8 @@ class Listing < ApplicationRecord
   has_many :bids, dependent: :destroy   # ✅ THIS WAS MISSING
   has_one :awarded_bid, -> { where(status: ["awarded", "in_progress", "complete"]) }, class_name: "Bid"
 
+  before_save :update_search_vector
+
   enum listing_type: {
     service: 0,
     property_sale: 1,
@@ -38,7 +40,76 @@ class Listing < ApplicationRecord
   scope :open, -> { where(status: "open") }
   scope :complete, -> { where(status: "complete") }
 
+  scope :text_search, ->(query) {
+    return all if query.blank?
 
+    where(
+      "search_vector @@ plainto_tsquery('english', ?)",
+      query
+    )
+  }
+
+  scope :by_type, ->(type) {
+    where(listing_type: type) if type.present?
+  }
+
+  scope :by_status, ->(status) {
+    where(status: status) if status.present?
+  }
+
+  scope :min_budget, ->(amount) {
+    where("budget >= ?", amount) if amount.present?
+  }
+
+  scope :max_budget, ->(amount) {
+    where("budget <= ?", amount) if amount.present?
+  }
+
+  scope :by_deal_type, ->(deal_type) {
+    where(deal_type: deal_type) if deal_type.present?
+  }
+
+  scope :by_condition, ->(condition) {
+    where(property_condition: condition) if condition.present?
+  }
+
+  scope :by_services, ->(service_ids) {
+    if service_ids.present?
+      joins(:services).where(services: { id: service_ids }).distinct
+    end
+  }
+
+  def self.faceted_search(params)
+    results = self
+
+    # keyword search
+    results = results.text_search(params[:q]) if params[:q].present?
+
+    # services
+    if params[:service_ids].present?
+      results = results.joins(:services)
+                       .where(services: { id: params[:service_ids] })
+    end
+
+    # standard facets
+    results = results.by_type(params[:listing_type])
+    results = results.by_status(params[:status])
+    results = results.min_budget(params[:min_budget])
+    results = results.max_budget(params[:max_budget])
+    results = results.by_deal_type(params[:deal_type])
+    results = results.by_condition(params[:property_condition])
+
+    results.distinct
+  end
+
+  def self.facet_counts(base_relation = all)
+    {
+      listing_type: base_relation.group(:listing_type).count,
+      status: base_relation.group(:status).count,
+      deal_type: base_relation.group(:deal_type).count,
+      property_condition: base_relation.group(:property_condition).count
+    }
+  end
   # Return the bid that was awarded, even if completed
   def winning_bid
     bids.where(status: [:awarded, :paid, :complete])
@@ -82,5 +153,19 @@ class Listing < ApplicationRecord
                       .merge(Property.near([provider.latitude, provider.longitude], radius))
 
     render json: listings
+  end
+
+  def update_search_vector
+    sql = self.class.sanitize_sql_array([
+                                          "to_tsvector('english', ?)",
+                                          search_text
+                                        ])
+
+    self.search_vector =
+      self.class.connection.select_value("SELECT #{sql}")
+  end
+
+  def search_text
+    [title, description].compact.join(" ")
   end
 end

@@ -11,6 +11,18 @@ class Listing < ApplicationRecord
 
   before_save :update_search_vector
 
+  PROPERTY_TYPES = %w[
+    single_family
+    condo
+    townhouse
+    multi_family
+    land
+    manufactured
+    commercial
+  ].freeze
+
+
+
   enum listing_type: {
     service: 0,
     property_sale: 1,
@@ -35,6 +47,8 @@ class Listing < ApplicationRecord
 
   validates :title, :description, :budget, presence: true
   validates :budget, numericality: { greater_than: 0 }
+  validates :property_type,
+            inclusion: { in: PROPERTY_TYPES }
   # validate :listing_must_be_open
 
   scope :open, -> { where(status: "open") }
@@ -78,6 +92,8 @@ class Listing < ApplicationRecord
       joins(:services).where(services: { id: service_ids }).distinct
     end
   }
+
+  scope :single_family, -> { where(property_type: "single_family") }
 
   def self.faceted_search(params)
     results = self
@@ -167,5 +183,9 @@ class Listing < ApplicationRecord
 
   def search_text
     [title, description].compact.join(" ")
+  end
+
+  def single_family?
+    property_type == "single_family"
   end
 end

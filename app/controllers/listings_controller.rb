@@ -16,6 +16,8 @@ class ListingsController < ApplicationController
   # GET /listings
   def index
     Rails.logger.debug "FACET PARAMS: #{params.to_unsafe_h}"
+    Rails.logger.debug "FACET PARAMS: #{params.to_unsafe_h}"
+
     base_scope =
       if current_user&.profiles&.any?
         profile = current_user.profiles.first
@@ -26,18 +28,12 @@ class ListingsController < ApplicationController
                          .joins(:services)
                          .where(services: { id: profile.service_ids })
                          .distinct
-
-          # Unlicensed providers: only jobs <= $1,000
           scope = scope.where("budget <= ?", 1_000) unless profile.licensed?
-
           @my_bids = current_user.bids.includes(:listing)
           @bids_remaining = gate.bids_remaining
-
           scope
-
         elsif profile.homeowner?
           profile.listings.includes(:services)
-
         else
           Listing.open.includes(:services)
         end
@@ -45,11 +41,18 @@ class ListingsController < ApplicationController
         Listing.open.includes(:services)
       end
 
-    # ✅ apply faceted search ON TOP of permission scope
-    filtered = base_scope.faceted_search(search_params)
+    filtered_scope = base_scope.faceted_search(search_params.except(:property_types))
 
-    @listings = filtered.order(created_at: :desc).limit(50)
-    @facets   = Listing.facet_counts(filtered)
+    results_scope = if params[:property_types].present?
+                      filtered_scope.where(property_type: params[:property_types])
+                    else
+                      filtered_scope
+                    end
+
+    @listings = results_scope.order(created_at: :desc).limit(50)
+
+    # Pass both filtered_scope and base_scope for counts
+    @facets = Listing.facet_counts(filtered_scope, base_scope)
   end
 
   # GET /listings/:id

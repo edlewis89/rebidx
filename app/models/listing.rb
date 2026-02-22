@@ -127,14 +127,20 @@ class Listing < ApplicationRecord
     results.distinct
   end
 
-  def self.facet_counts(base_relation = all)
-    {
-      listing_type: base_relation.group(:listing_type).count,
-      status: base_relation.group(:status).count,
-      deal_type: base_relation.group(:deal_type).count,
-      property_condition: base_relation.group(:property_condition).count,
-      property_type: base_relation.group(:property_type).count # ✅ ADD THIS
+  def self.facet_counts(base_relation, base_scope)
+    counts = {
+      listing_type:       base_relation.group(:listing_type).count,
+      status:             base_relation.group(:status).count,
+      deal_type:          base_relation.group(:deal_type).count,
+      property_condition: base_relation.group(:property_condition).count
     }
+
+    # Property type counts should ignore faceted_search filters
+    counts[:property_type] = PROPERTY_TYPES.each_with_object({}) do |ptype, hash|
+      hash[ptype] = base_scope.where(property_type: ptype).count
+    end
+
+    counts
   end
   # Return the bid that was awarded, even if completed
   def winning_bid

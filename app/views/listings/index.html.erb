@@ -17,6 +17,7 @@
       <tr>
         <th>Title</th>
         <th>Type</th>
+        <th>Bid Count</th>
         <th>Status</th>
         <th>Budget</th>
         <% if user_signed_in? %>
@@ -35,6 +36,12 @@
             <% end %>
           </td>
           <td><%= listing.listing_type.humanize %></td>
+          <td><div class="small text-muted">
+            <%= listing.bids_count %> bids
+            <% if listing.lowest_bid.present? %>
+              • From $<%= listing.lowest_bid %>
+            <% end %>
+          </div></td>
           <td><%= listing.status.humanize %></td>
           <td><%= number_to_currency(listing.budget) %></td>
 

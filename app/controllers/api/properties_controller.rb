@@ -65,7 +65,7 @@ module Api
     end
 
     def notify_matching_providers(property)
-      providers = ServiceProviderProfile.joins(:user)
+      providers = Profile.joins(:user)
                                         .where(zipcode: property.zipcode)
 
       providers.find_each do |provider|

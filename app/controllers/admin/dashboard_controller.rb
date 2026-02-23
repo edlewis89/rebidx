@@ -18,7 +18,7 @@ module Admin
       @failed_checks = VerificationCheck.failed.count
 
       # Provider population count (NOT verification-based)
-      @total_providers = ServiceProviderProfile.count
+      @total_providers = Profile.count
     end
 
     private

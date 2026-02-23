@@ -1,10 +1,13 @@
 class Bid < ApplicationRecord
   belongs_to :profile
-  belongs_to :listing
+  belongs_to :listing, counter_cache: true
   has_one :rating, -> { where.not(id: nil) }, dependent: :destroy
 
   # 🔥 gives you bid.user without storing user_id
   has_one :user, through: :profile
+
+  after_commit :update_listing_lowest_bid
+  after_destroy :update_listing_lowest_bid
 
   enum status: {
     pending: 0,
@@ -91,6 +94,10 @@ class Bid < ApplicationRecord
           .exists?
       errors.add(:status, "Only one bid can be awarded per listing")
     end
+  end
+
+  def update_listing_lowest_bid
+    listing.update_lowest_bid!
   end
 end
 

@@ -44,10 +44,10 @@ Rails.application.routes.draw do
     resources :license_types
     resources :advertisements
     resources :memberships
-    resources :service_provider_profiles, only: [:index] do
+    resources :profiles, only: [:index] do
       patch :verify, on: :member
     end
-    resources :service_provider_profiles, only: [:show] do
+    resources :profiles, only: [:show] do
       resources :ratings, only: [:create]
     end
   end
@@ -98,7 +98,7 @@ Rails.application.routes.draw do
 
     resources :listings, only: [:index, :show, :create, :update, :destroy]
     resources :bids, only: [:index, :create]
-    resources :service_provider_profiles, only: [:create, :update]
+    resources :profiles, only: [:create, :update]
     resources :properties, only: [:index, :show, :create, :update, :destroy]
 
     get "listings/nearby", to: "listings#nearby"

@@ -8,7 +8,7 @@ class Api::ProvidersController < Api::BaseController
     radius = current_user.subscription&.membership&.service_radius || 10
 
     # Use Geocoder `.near` for efficient DB query
-    providers = ServiceProviderProfile.near([property.latitude, property.longitude], radius)
+    providers = Profile.near([property.latitude, property.longitude], radius)
 
     render json: providers.as_json(
       only: [:id, :business_name, :full_name, :address, :city, :state, :zipcode],

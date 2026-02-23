@@ -47,8 +47,8 @@
 
         <!-- Ratings Column -->
         <td>
-          <% avg = profile.ratings.average(:score)&.round(2) %>
-          <% count = profile.ratings.count %>
+          <% avg = profile.ratings_received.average(:score)&.round(2) %>
+          <% count = profile.ratings_received.count %>
           <% if count > 0 %>
             <span title="<%= count %> ratings"><%= avg %> ⭐ (<%= count %>)</span>
           <% else %>
@@ -59,7 +59,7 @@
         <td>
           <% unless profile.verified? %>
             <%= button_to "Verify",
-                          verify_admin_service_provider_profile_path(profile),
+                          verify_admin_profile_path(profile),
                           method: :patch,
                           class: "btn btn-sm btn-success",
                           form_class: "d-inline",

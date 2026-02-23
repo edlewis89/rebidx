@@ -142,6 +142,12 @@ class Listing < ApplicationRecord
 
     counts
   end
+
+  def update_lowest_bid!
+    value = bids.minimum(:amount)
+    update_column(:lowest_bid, value)
+  end
+
   # Return the bid that was awarded, even if completed
   def winning_bid
     bids.where(status: [:awarded, :paid, :complete])

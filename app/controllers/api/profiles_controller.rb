@@ -1,11 +1,11 @@
 module Api
-  class ServiceProviderProfilesController < Api::BaseController
+  class ProfilesController < Api::BaseController
     before_action :authenticate_user! # JWT authentication
     before_action :ensure_service_provider
 
-    # POST /api/service_provider_profiles
+    # POST /api/profiles
     def create
-      profile = current_user.build_service_provider_profile(profile_params)
+      profile = current_user.build_profile(profile_params)
 
       if profile.save
         render json: {
@@ -17,9 +17,9 @@ module Api
       end
     end
 
-    # PATCH/PUT /api/service_provider_profiles/:id
+    # PATCH/PUT /api/profiles/:id
     def update
-      profile = current_user.service_provider_profile
+      profile = current_user.profile
       if profile.update(profile_params)
         render json: {
           profile: profile_response(profile),
@@ -39,7 +39,7 @@ module Api
     end
 
     def profile_params
-      params.require(:service_provider_profile).permit(
+      params.require(:profile).permit(
         :full_name,
         :business_name,
         :phone_number,

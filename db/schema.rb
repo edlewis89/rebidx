@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_22_213123) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_23_040437) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -125,10 +125,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_22_213123) do
     t.datetime "updated_at", null: false
     t.tsvector "search_vector"
     t.string "property_type", default: "single_family", null: false
+    t.integer "bid_count", default: 0, null: false
+    t.decimal "lowest_bid", precision: 12, scale: 2
+    t.integer "bids_count", default: 0, null: false
     t.index ["arv"], name: "index_listings_on_arv"
     t.index ["asking_price"], name: "index_listings_on_asking_price"
+    t.index ["bid_count"], name: "index_listings_on_bid_count"
+    t.index ["bids_count"], name: "index_listings_on_bids_count"
     t.index ["deal_type"], name: "index_listings_on_deal_type"
     t.index ["listing_type", "deal_type"], name: "index_listings_on_listing_type_and_deal_type"
+    t.index ["lowest_bid"], name: "index_listings_on_lowest_bid"
     t.index ["property_id"], name: "index_listings_on_property_id"
     t.index ["property_type"], name: "index_listings_on_property_type"
     t.index ["search_vector"], name: "index_listings_on_search_vector", using: :gin

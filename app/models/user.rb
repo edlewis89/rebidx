@@ -8,6 +8,7 @@ class User < ApplicationRecord
          :jwt_authenticatable,
          jwt_revocation_strategy: JwtDenylist
 
+  before_create :auto_confirm_if_disabled
   after_create :assign_default_membership
 
   has_one :subscription, dependent: :destroy
@@ -116,7 +117,27 @@ class User < ApplicationRecord
     features_range = membership&.features&.dig("bid_range") || default_range
     [features_range["low"].to_f, features_range["high"].to_f]
   end
+
+  protected_methods
+
+  def auto_confirm_if_disabled
+    return if self.class.email_verification_enabled?
+    self.confirmed_at ||= Time.current
+  end
+
+  def send_on_create_confirmation_instructions
+    return unless self.class.email_verification_enabled?
+    super
+  end
+
+  def self.email_verification_enabled?
+    ActiveModel::Type::Boolean.new.cast(
+      ENV.fetch("EMAIL_VERIFICATION_ENABLED", true)
+    )
+  end
 end
+
+
 
 # def can_bid_on?(listing)
 #   listing.budget.to_i <= max_bid_amount

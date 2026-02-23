@@ -21,8 +21,6 @@ class User < ApplicationRecord
   has_many :bids, through: :profiles, source: :bids
   has_many :listings, dependent: :destroy
   has_many :payments, dependent: :destroy
-
-  has_many :profiles, dependent: :destroy
   has_many :ratings_received, through: :profiles, source: :ratings_received
 
   enum role: {
@@ -120,16 +118,19 @@ class User < ApplicationRecord
 
   protected_methods
 
+  # ✅ instance method
   def auto_confirm_if_disabled
     return if self.class.email_verification_enabled?
     self.confirmed_at ||= Time.current
   end
 
+  # ✅ override Devise hook
   def send_on_create_confirmation_instructions
     return unless self.class.email_verification_enabled?
     super
   end
 
+  # ✅ CLASS METHOD — MUST be inside class
   def self.email_verification_enabled?
     ActiveModel::Type::Boolean.new.cast(
       ENV.fetch("EMAIL_VERIFICATION_ENABLED", true)

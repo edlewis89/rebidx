@@ -10,6 +10,7 @@
 # Clear existing data
 # db/seeds.rb
 
+
 # ===============================
 # CLEAN SLATE
 # ===============================
@@ -17,7 +18,6 @@ Bid.destroy_all
 ListingService.destroy_all
 Listing.destroy_all
 Property.destroy_all
-ProfileService.destroy_all
 Profile.destroy_all
 Service.destroy_all
 LicenseType.destroy_all
@@ -27,6 +27,7 @@ Notification.destroy_all
 Subscription.destroy_all
 
 puts "🌱 Seeding data..."
+
 
 # ===============================
 # MEMBERSHIPS
@@ -49,65 +50,12 @@ puts "🌱 Seeding data..."
 # Pro	C/B	0 – 20,000
 # Elite	B	0 – 100,000
 # Platinum	A	0 – unlimited
+
 Membership.create!([
-                     {
-                       name: "Free",
-                       price_cents: 0,
-                       service_radius: 10,  # small radius
-                       features: {
-                         max_listings: 5,
-                         max_bids_per_month: 5,
-                         messaging: false,
-                         can_bid_high_value: false,
-                         show_ads: true,
-                         featured_listings: false,
-                         bid_range: { low: 0, high: 1000 } # unlicensed or low-tier
-                       },
-                       active: true
-                     },
-                     {
-                       name: "Pro",          # Class C
-                       price_cents: 2900,
-                       service_radius: 25,  # mid radius
-                       features: {
-                         max_listings: 10,
-                         max_bids_per_month: 10,
-                         messaging: true,
-                         featured_listings: true,
-                         can_bid_high_value: true,
-                         bid_range: { low: 0, high: 20_000 }
-                       },
-                       active: true
-                     },
-                     {
-                       name: "Elite",       # Class B
-                       price_cents: 6900,
-                       service_radius: 50,  # large radius
-                       features: {
-                         max_listings: 20,
-                         max_bids_per_month: 40,
-                         messaging: true,
-                         featured_listings: true,
-                         can_bid_high_value: true,
-                         bid_range: { low: 0, high: 100_000 }
-                       },
-                       active: true
-                     },
-                     {
-                       name: "Platinum",        # Class A
-                       price_cents: 9900,
-                       service_radius: 100, # max radius
-                       features: {
-                         max_listings: 9999,
-                         max_bids_per_month: 9999,
-                         messaging: true,
-                         featured_listings: true,
-                         can_bid_high_value: true,
-                         priority_support: true,
-                         bid_range: { low: 0, high: 1_000_000 } # effectively unlimited
-                       },
-                       active: true
-                     }
+                     { name: "Free", price_cents: 0, service_radius: 10, features: { max_listings: 5, max_bids_per_month: 5, messaging: false, can_bid_high_value: false, show_ads: true, featured_listings: false, bid_range: { low: 0, high: 1000 } }, active: true },
+                     { name: "Pro", price_cents: 2900, service_radius: 25, features: { max_listings: 10, max_bids_per_month: 10, messaging: true, featured_listings: true, can_bid_high_value: true, bid_range: { low: 0, high: 20_000 } }, active: true },
+                     { name: "Elite", price_cents: 6900, service_radius: 50, features: { max_listings: 20, max_bids_per_month: 40, messaging: true, featured_listings: true, can_bid_high_value: true, bid_range: { low: 0, high: 100_000 } }, active: true },
+                     { name: "Platinum", price_cents: 9900, service_radius: 100, features: { max_listings: 9999, max_bids_per_month: 9999, messaging: true, featured_listings: true, can_bid_high_value: true, priority_support: true, bid_range: { low: 0, high: 1_000_000 } }, active: true }
                    ])
 puts "✅ Memberships seeded"
 
@@ -117,26 +65,23 @@ puts "✅ Memberships seeded"
 class_a = LicenseType.create!(name: "Class A", description: "High-rise & large commercial. Full verification required.", requires_verification: true)
 class_b = LicenseType.create!(name: "Class B", description: "Mid-size residential & commercial.", requires_verification: true)
 class_c = LicenseType.create!(name: "Class C", description: "Small residential & light construction.", requires_verification: true)
-
 puts "✅ License types seeded"
 
 # ===============================
 # USERS
 # ===============================
-homeowner = User.create!(name: "Alice Homeowner", email: "alice@example.com", password: "password", role: :homeowner)
+homeowner1 = User.create!(name: "Alice Homeowner", email: "alice@example.com", password: "password", role: :homeowner)
+homeowner2 = User.create!(name: "Eve Homeowner", email: "eve@example.com", password: "password", role: :homeowner)
 unlicensed_provider = User.create!(name: "Bob Repairs", email: "bob@example.com", password: "password", role: :service_provider)
 licensed_contractor = User.create!(name: "Charlie Contractor", email: "pro@example.com", password: "password", role: :service_provider)
 admin = User.create!(name: "Admin User", email: "admin@example.com", password: "password", role: :rebidx_admin)
-
 puts "✅ Users seeded"
-
 
 # ===============================
 # SUBSCRIPTIONS
 # ===============================
 pro_membership = Membership.find_by(name: "Pro")
 licensed_contractor.create_subscription!(membership: pro_membership, status: "active")
-
 puts "✅ Subscriptions seeded"
 
 # ===============================
@@ -163,159 +108,189 @@ moving       = Service.create!(name: "Moving / Hauling Services")
 gutters      = Service.create!(name: "Gutter & Exterior Maintenance")
 handyman     = Service.create!(name: "Handyman / General Repairs")
 dog_walker   = Service.create!(name: "Dog Walker / Pet Care")
-
 puts "✅ Services seeded"
 
 # ===============================
-# SERVICE PROVIDER PROFILES
+# PROFILES
 # ===============================
-profile_unlicensed = Profile.create!(
-  user: unlicensed_provider,
-  profile_type: :service_provider,
-  business_name: "Bob Repairs",
-  full_name: "Bob Seiger",
-  tax_id: "123456789"
-)
+# Homeowners
+profile_homeowner1 = Profile.create!(user: homeowner1, profile_type: :homeowner, full_name: "Alice Homeowner")
+profile_homeowner2 = Profile.create!(user: homeowner2, profile_type: :homeowner, full_name: "Eve Homeowner")
 
-profile_contractor = Profile.create!(
-  user: licensed_contractor,
-  profile_type: :service_provider,
-  business_name: "Charlie's Construction",
-  full_name: "Charlie Sheen",
-  tax_id: "987654321"
-)
+# Service providers
+profile_unlicensed = Profile.create!(user: unlicensed_provider, profile_type: :service_provider, business_name: "Bob Repairs", full_name: "Bob Seiger", tax_id: "123456789")
+profile_contractor = Profile.create!(user: licensed_contractor, profile_type: :service_provider, business_name: "Charlie's Construction", full_name: "Charlie Sheen", tax_id: "987654321")
 
-puts "✅ Provider profiles seeded"
-
-# Assign license types
+# Assign license
 profile_contractor.license_types << class_c
-puts "✅ Provider license types assigned"
 
-# # Provider services
-# [plumbing, painting, construction].each do |svc|
-#   ProviderService.create!(service_provider_profile: profile_unlicensed, service: svc)
-# end
-# Provider services
-[plumbing, painting, construction].each do |svc|
-  profile_unlicensed.services << svc
-end
+# Assign services
+profile_unlicensed.services << [plumbing, painting, construction]
+profile_contractor.services << [plumbing, electrical, roofing, construction]
 
-# [plumbing, electrical, roofing, construction].each do |svc|
-#   ProviderService.create!(service_provider_profile: profile_contractor, service: svc)
-# end
-[plumbing, electrical, roofing, construction].each do |svc|
-  profile_contractor.services << svc
-end
-
-puts "✅ Provider services seeded"
+puts "✅ Profiles, licenses, and provider services seeded"
 
 # ===============================
 # PROPERTIES
 # ===============================
-property1 = Property.create!(user: homeowner, title: "Maple Street House", city: "New York", address: "123 Maple St")
-property2 = Property.create!(user: homeowner, title: "Oak Avenue Condo", city: "Boston", address: "456 Oak Ave")
-property3 = Property.create!(user: homeowner, title: "Tallimore Estates", city: "Chantilly", address: "28 Tallimore Ave")
-
-puts "✅ Properties seeded"
-
-# ===============================
-# LISTINGS — mixed values
-# ===============================
-listing1 = Listing.create!(user: homeowner, property: property1, title: "Fix Kitchen Sink", description: "The sink is leaking badly", listing_type: :service, status: :open, budget: 200)
-listing2 = Listing.create!(user: homeowner, property: property2, title: "Paint Living Room", description: "Need fresh paint in living room", listing_type: :service, status: :open, budget: 350)
-listing3 = Listing.create!(user: homeowner, property: property2, title: "Shed framing repair", description: "Minor framing and reinforcement work", listing_type: :build_opportunity, status: :open, budget: 850)
-listing4 = Listing.create!(user: homeowner, property: property3, title: "Bathroom Remodel", description: "Mid-level bathroom upgrade", listing_type: :build_opportunity, status: :open, budget: 2_500)
-listing5 = Listing.create!(user: homeowner, property: property3, title: "Add basement room", description: "Full basement expansion with permits", listing_type: :build_opportunity, status: :open, budget: 24_000)
-# listing6 = Listing.create!(user: homeowner, property: property1, title: "Roof Replacement", description: "Full tear-off and new roof install", listing_type: :build_opportunity, status: :open, budget: 12_000)
-
-puts "✅ Listings seeded"
-
-# Listing services
-ListingService.create!(listing: listing1, service: plumbing)
-ListingService.create!(listing: listing2, service: painting)
-ListingService.create!(listing: listing3, service: construction)
-ListingService.create!(listing: listing4, service: construction)
-ListingService.create!(listing: listing5, service: construction)
-# ListingService.create!(listing: listing6, service: roofing)
-
-puts "✅ Listing services linked"
-
-# ===============================
-# SECOND HOMEOWNER FOR TESTING
-# ===============================
-homeowner2 = User.create!(name: "Eve Homeowner", email: "eve@example.com", password: "password", role: :homeowner)
-puts "✅ Second homeowner seeded"
-
-Profile.create!(user: homeowner, profile_type: :homeowner, full_name: "Alice Homeowner")
-Profile.create!(user: homeowner2, profile_type: :homeowner, full_name: "Eve Homeowner")
-
-# Properties
+property1 = Property.create!(user: homeowner1, title: "Maple Street House", city: "New York", address: "123 Maple St")
+property2 = Property.create!(user: homeowner1, title: "Oak Avenue Condo", city: "Boston", address: "456 Oak Ave")
+property3 = Property.create!(user: homeowner1, title: "Tallimore Estates", city: "Chantilly", address: "28 Tallimore Ave")
 property4 = Property.create!(user: homeowner2, title: "Cedar Lane House", city: "Chicago", address: "101 Cedar Ln")
 property5 = Property.create!(user: homeowner2, title: "Pine Street Apartment", city: "Seattle", address: "202 Pine St")
 property6 = Property.create!(user: homeowner2, title: "Birchwood Villa", city: "Austin", address: "303 Birchwood Ave")
-puts "✅ Properties for second homeowner seeded"
-
-# Listings — mid-tier so Pro can bid
-listing7 = Listing.create!(user: homeowner2, property: property4, title: "Fix Leaky Faucet", description: "Kitchen faucet leaking", listing_type: :service, status: :open, budget: 300)
-listing8 = Listing.create!(user: homeowner2, property: property5, title: "Paint Bedroom", description: "Need bedroom painted", listing_type: :service, status: :open, budget: 450)
-# listing9 = Listing.create!(user: homeowner2, property: property6, title: "Small Deck Repair", description: "Minor deck repair needed", listing_type: :build_opportunity, status: :open, budget: 950)
-puts "✅ Listings for second homeowner seeded"
-
-# Listing Services
-ListingService.create!(listing: listing7, service: plumbing)
-ListingService.create!(listing: listing8, service: painting)
-# ListingService.create!(listing: listing9, service: construction)
-puts "✅ Listing services linked for second homeowner"
-
+puts "✅ Properties seeded"
 
 # ===============================
-# BIDS — respect membership bid ranges
+# LISTINGS
+# ===============================
+# Alice's listings
+listing1 = Listing.create!(user: homeowner1, property: property1, property_type: "condo", title: "Fix Kitchen Sink", description: "The sink is leaking badly", listing_type: :service, status: :open, budget: 200)
+listing2 = Listing.create!(user: homeowner1, property: property2, title: "Paint Living Room", description: "Need fresh paint in living room", listing_type: :service, status: :open, budget: 350)
+listing3 = Listing.create!(user: homeowner1, property: property2, title: "Shed framing repair", description: "Minor framing and reinforcement work", listing_type: :build_opportunity, status: :open, budget: 850)
+listing4 = Listing.create!(user: homeowner1, property: property3, title: "Bathroom Remodel", description: "Mid-level bathroom upgrade", listing_type: :build_opportunity, status: :open, budget: 2_500)
+listing5 = Listing.create!(user: homeowner1, property: property3, title: "Add basement room", description: "Full basement expansion with permits", listing_type: :build_opportunity, status: :open, budget: 24_000)
+listing_repair1 = Listing.create!(user: homeowner1, property: property1, title: "Fence Repair Needed", description: "Wood fence is damaged; needs replacement boards and paint", listing_type: :service, status: :open, budget: 450)
+listing_pet2 = Listing.create!(user: homeowner1, property: property3, title: "Pet Sitting: Cat & Dog", description: "Need reliable pet sitter for 5 days", listing_type: :service, status: :open, budget: 200)
+
+# Eve's listings
+listing7 = Listing.create!(user: homeowner2, property: property4, title: "Fix Leaky Faucet", description: "Kitchen faucet leaking", listing_type: :service, status: :open, budget: 300)
+listing8 = Listing.create!(user: homeowner2, property: property5, property_type: "condo", title: "Paint Bedroom", description: "Need bedroom painted", listing_type: :service, status: :open, budget: 450)
+listing_repair2 = Listing.create!(user: homeowner2, property: property4, title: "Deck Repair & Staining", description: "Minor deck repairs plus staining for protection", listing_type: :service, status: :open, budget: 900)
+listing_pet1 = Listing.create!(user: homeowner2, property: property5, property_type: "condo", title: "Dog Sitting Needed", description: "Looking for dog walker/sitter for 3 days next week", listing_type: :service, status: :open, budget: 150)
+listing_flip1 = Listing.create!(user: homeowner2, property: property6, title: "Fix & Flip: Birchwood Villa", description: "Quick flip opportunity; minor renovations needed", listing_type: :investment_opportunity, status: :open, budget: 40_000, deal_type: :flip)
+listing_flip2 = Listing.create!(user: homeowner2, property: property5, property_type: "multi_family", title: "Oak Street Flip", description: "Opportunity to flip mid-range apartment", listing_type: :investment_opportunity, status: :open, budget: 25_000, deal_type: :flip)
+puts "✅ Listings created"
+
+# ===============================
+# LINK SERVICES TO LISTINGS
+# ===============================
+listing1.services << [plumbing, painting]
+listing2.services << [painting, plumbing]
+listing3.services << [construction, electrical]
+listing4.services << [construction, flooring]
+listing5.services << [construction, plumbing]
+listing_repair1.services << [construction]
+listing_repair2.services << [construction]
+listing_pet1.services << [dog_walker]
+listing_pet2.services << [dog_walker]
+listing_flip1.services << [construction]
+listing_flip2.services << [construction]
+puts "✅ Listing services linked"
+
+# ===============================
+# BIDS
 # ===============================
 def create_bid(user, profile, listing, amount, message)
   membership = user.subscription&.membership
   return unless membership
-
   bid_range = membership.features["bid_range"]
   min = bid_range["low"]
   max = bid_range["high"]
   return if amount < min || amount > max
 
-  Bid.create!(
-    listing: listing,
-    profile: profile,
-    amount: amount,
-    message: message,
-    status: :pending
-  )
+  Bid.create!(listing: listing, profile: profile, amount: amount, message: message, status: :pending)
 end
 
-# Notes:
-#   profile.user is used inside the helper if you need the membership for bid limits.
-#     Any existing Bid controller logic that expected bid.user will need to be updated to bid.profile.user instead.
-
-# Unlicensed provider: only low-budget
+# Unlicensed provider bids (low budget)
 create_bid(unlicensed_provider, profile_unlicensed, listing1, 180, "Quick affordable fix")
 create_bid(unlicensed_provider, profile_unlicensed, listing2, 300, "Clean professional job")
 create_bid(unlicensed_provider, profile_unlicensed, listing3, 750, "Handled similar framing before")
-create_bid(unlicensed_provider, profile_unlicensed, listing4, 900, "Attempt high job — should be blocked by range")
+create_bid(unlicensed_provider, profile_unlicensed, listing_repair2, 900, "Attempt high job — blocked by range")
+create_bid(unlicensed_provider, profile_unlicensed, listing_pet1, 140, "Friendly pet sitter available")
 
-# Licensed contractor: full range
+# Licensed contractor bids (full range)
 create_bid(licensed_contractor, profile_contractor, listing3, 900, "Licensed, insured, fast turnaround")
 create_bid(licensed_contractor, profile_contractor, listing4, 2_200, "Bathroom remodel with permits")
 create_bid(licensed_contractor, profile_contractor, listing5, 23_000, "Full crew, inspections included")
-# create_bid(licensed_contractor, listing6, 11_500, "Roof replacement with warranty")
-
-# Optional: Pro places bids to hit limit
 create_bid(licensed_contractor, profile_contractor, listing7, 280, "Quick plumbing fix")
 create_bid(licensed_contractor, profile_contractor, listing8, 400, "Painting with high finish")
-# create_bid(licensed_contractor, listing9, 900, "Deck repair by licensed team")
-puts "✅ Additional bids by Pro seeded to reach bid limit"
+create_bid(licensed_contractor, profile_contractor, listing_flip1, 35_000, "Experienced flip team ready")
+create_bid(licensed_contractor, profile_contractor, listing_repair1, 400, "Quick repair, quality work")
+puts "✅ Bids seeded"
 
+puts "🌱 Running faceted search test cases..."
 
-puts "✅ Bids seeded respecting membership ranges"
+# Map service names to IDs for filtering
+services = Service.all.index_by(&:name)
+
+# -------------------------------
+# 1️⃣ Search by Service
+# -------------------------------
+puts "\nTest 1: Listings with Painting service"
+painting_listings = Listing.joins(:services).where(services: { id: services["Painting"].id }).distinct
+puts "Found #{painting_listings.count} listings with Painting service"
+painting_listings.each { |l| puts "- #{l.title} ($#{l.budget}) | Services: #{l.services.map(&:name).join(', ')}" }
+
+puts "\nTest 2: Listings with Plumbing service"
+plumbing_listings = Listing.joins(:services).where(services: { id: services["Plumbing"].id }).distinct
+puts "Found #{plumbing_listings.count} listings with Plumbing service"
+plumbing_listings.each { |l| puts "- #{l.title} ($#{l.budget}) | Services: #{l.services.map(&:name).join(', ')}" }
+
+puts "\nTest 3: Listings with Dog Walker / Pet Care service"
+dog_walker_listings = Listing.joins(:services).where(services: { id: services["Dog Walker / Pet Care"].id }).distinct
+puts "Found #{dog_walker_listings.count} listings with Dog Walker / Pet Care service"
+dog_walker_listings.each { |l| puts "- #{l.title} ($#{l.budget}) | Services: #{l.services.map(&:name).join(', ')}" }
+
+# -------------------------------
+# 2️⃣ Combined facets (service + budget)
+# -------------------------------
+puts "\nTest 4: Painting listings under $500"
+painting_under_500 = Listing.joins(:services)
+                            .where(services: { id: services["Painting"].id })
+                            .where("budget <= ?", 500)
+                            .distinct
+puts "Found #{painting_under_500.count} listings"
+painting_under_500.each { |l| puts "- #{l.title} ($#{l.budget}) | Services: #{l.services.map(&:name).join(', ')}" }
+
+# -------------------------------
+# 3️⃣ Faceted search helper (text + service)
+# -------------------------------
+puts "\nTest 5: Listings with 'Living Room' in text AND Painting service"
+faceted_painting = Listing.faceted_search(query: "Living Room")
+                          .joins(:services)
+                          .where(services: { id: services["Painting"].id })
+                          .distinct
+puts "Found #{faceted_painting.count} listings"
+faceted_painting.each { |l| puts "- #{l.title} ($#{l.budget}) | Services: #{l.services.map(&:name).join(', ')}" }
+
+# -------------------------------
+# 4️⃣ Filter by listing type
+# -------------------------------
+puts "\nTest 6: Filter by listing_type :service"
+service_listings = Listing.faceted_search(listing_type: "service")
+puts "Found #{service_listings.count} service listings"
+service_listings.each { |l| puts "- #{l.title}" }
+
+puts "\nTest 7: Filter by listing_type :investment_opportunity"
+investment_listings = Listing.faceted_search(listing_type: "investment_opportunity")
+puts "Found #{investment_listings.count} investment listings"
+investment_listings.each { |l| puts "- #{l.title}" }
+
+# -------------------------------
+# 5️⃣ Filter by budget
+# -------------------------------
+puts "\nTest 8: Listings between $200 and $500"
+budget_listings = Listing.faceted_search(min_budget: 200, max_budget: 500)
+puts "Found #{budget_listings.count} listings"
+budget_listings.each { |l| puts "- #{l.title} ($#{l.budget})" }
+
+# -------------------------------
+# 6️⃣ Filter by deal type
+# -------------------------------
+puts "\nTest 9: Listings with deal_type :flip"
+flip_listings = Listing.faceted_search(deal_type: "flip")
+puts "Found #{flip_listings.count} flip listings"
+flip_listings.each { |l| puts "- #{l.title} ($#{l.budget})" }
+
+# -------------------------------
+# 7️⃣ Combined facets example
+# -------------------------------
+puts "\nTest 10: Service listings under $500 with 'Paint' in title/description"
+combined_listings = Listing.faceted_search(listing_type: "service", min_budget: 0, max_budget: 500, query: "Paint")
+puts "Found #{combined_listings.count} listings"
+combined_listings.each { |l| puts "- #{l.title} ($#{l.budget}) | Services: #{l.services.map(&:name).join(', ')}" }
+
+puts "✅ Faceted search test cases complete!"
+
 puts "🎉 SEEDING COMPLETE!"
-
-
-
-
-

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_23_040437) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_24_033202) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -75,6 +75,31 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_23_040437) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["jti"], name: "index_jwt_denylists_on_jti"
+  end
+
+  create_table "lead_services", force: :cascade do |t|
+    t.bigint "lead_id", null: false
+    t.bigint "service_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["lead_id", "service_id"], name: "index_lead_services_on_lead_id_and_service_id", unique: true
+    t.index ["lead_id"], name: "index_lead_services_on_lead_id"
+    t.index ["service_id"], name: "index_lead_services_on_service_id"
+  end
+
+  create_table "leads", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "description", null: false
+    t.decimal "budget"
+    t.integer "status", default: 0, null: false
+    t.bigint "user_id", null: false
+    t.bigint "property_id"
+    t.integer "claimed_by"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["claimed_by"], name: "index_leads_on_claimed_by"
+    t.index ["property_id"], name: "index_leads_on_property_id"
+    t.index ["user_id"], name: "index_leads_on_user_id"
   end
 
   create_table "license_types", force: :cascade do |t|
@@ -315,6 +340,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_23_040437) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "bids", "listings"
   add_foreign_key "bids", "profiles"
+  add_foreign_key "lead_services", "leads"
+  add_foreign_key "lead_services", "services"
+  add_foreign_key "leads", "properties"
+  add_foreign_key "leads", "users"
   add_foreign_key "licenses", "license_types"
   add_foreign_key "licenses", "profiles"
   add_foreign_key "listing_services", "listings"

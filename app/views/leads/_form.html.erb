@@ -1,0 +1,30 @@
+<%= form_with model: lead, local: true do |f| %>
+  <div class="field">
+    <%= f.label :title %>
+    <%= f.text_field :title %>
+  </div>
+
+  <div class="field">
+    <%= f.label :description %>
+    <%= f.text_area :description %>
+  </div>
+
+  <div class="field">
+    <%= f.label :budget %>
+    <%= f.number_field :budget %>
+  </div>
+
+  <div class="field">
+    <%= f.label :service_id, "Service Type" %>
+    <%= f.collection_select :service_id, Service.all, :id, :name, prompt: "Select Service" %>
+  </div>
+
+  <div class="field">
+    <%= f.label :property_id, "Property" %>
+    <%= f.collection_select :property_id, current_user.properties, :id, :title, prompt: "Select Property (optional)" %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

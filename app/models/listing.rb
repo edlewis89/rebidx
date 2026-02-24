@@ -7,7 +7,7 @@ class Listing < ApplicationRecord
   has_many :listing_services, dependent: :destroy
   has_many :services, through: :listing_services
   has_many :bids, dependent: :destroy   # ✅ THIS WAS MISSING
-  has_one :awarded_bid, -> { where(status: ["awarded", "in_progress", "complete"]) }, class_name: "Bid"
+  has_one :awarded_bid, -> { where(status: [:accepted, :paid, :complete]) }, class_name: "Bid"
 
   before_save :update_search_vector
 
@@ -144,15 +144,23 @@ class Listing < ApplicationRecord
   end
 
   def update_lowest_bid!
-    value = bids.minimum(:amount)
-    update_column(:lowest_bid, value)
+    min_bid = bids.where(status: [:pending, :shortlisted, :accepted]).minimum(:amount)
+    update(lowest_bid: min_bid)
   end
 
   # Return the bid that was awarded, even if completed
   def winning_bid
-    bids.where(status: [:awarded, :paid, :complete])
+    bids.where(status: :accepted)
         .order(updated_at: :desc)
         .first
+  end
+
+  def award_bid!(bid)
+    transaction do
+      bids.where(status: [:accepted]).update_all(status: :rejected) # reject previous accepted bids
+      bid.update!(status: :accepted)
+      update!(status: :awarded)
+    end
   end
 
   def editable?

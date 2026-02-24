@@ -166,6 +166,14 @@ class Profile < ApplicationRecord
   def full_address
     [address, city, state, zipcode].compact.join(", ")
   end
+
+  def average_rating
+    ratings_received.average(:score)&.round(2)
+  end
+
+  def ratings_count
+    ratings_received.count
+  end
 end
 
 # class ServiceProviderProfile < ApplicationRecord

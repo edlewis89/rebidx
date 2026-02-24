@@ -72,6 +72,13 @@ Rails.application.routes.draw do
     end
   end
 
+  # Leads
+  resources :leads, only: [:new, :create, :index, :show] do
+    member do
+      patch :convert_to_listing  # optional, if you later allow converting a Lead to Listing
+    end
+  end
+
   # namespace :admin do
   #   # Admin root goes to dashboard#index
   #   root to: "dashboard#index"

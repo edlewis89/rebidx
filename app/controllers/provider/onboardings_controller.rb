@@ -53,13 +53,15 @@ module Provider
     end
 
     def set_profile
-      @profile =
-        current_user.service_provider_profile ||
-          current_user.build_service_provider_profile
+      # pick the first provider profile if it exists
+      @profile = current_user.profiles.find_by(profile_type: :provider)
+
+      # otherwise, build a new provider profile
+      @profile ||= current_user.profiles.build(profile_type: :provider)
     end
 
     def profile_params
-      params.require(:service_provider_profile).permit(
+      params.require(:profile).permit(
         :business_name,
         :full_name,
         :phone_number,

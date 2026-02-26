@@ -20,6 +20,11 @@
     <%= f.select :listing_type, Listing.listing_types.keys, {}, class: "form-select" %>
   </div>
 
+  <div class="mb-3">
+    <%= f.label :photos, "Upload Photos" %>
+    <%= f.file_field :photos, multiple: true, class: "form-control"  %>
+  </div>
+
   <%= f.submit class: "btn btn-primary" %>
 
 <% end %>

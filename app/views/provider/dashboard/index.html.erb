@@ -13,7 +13,7 @@
     </p>
 
     <% gate = AccessGate.new(current_user) %>
-    <% profile = current_user.service_provider_profile %>
+    <% profile = current_user.profiles.first %>  <!-- Fix CollectionProxy issue -->
 
     <!-- Bid Limit Alert -->
     <% if @bids_remaining && @bids_remaining > 0 %>

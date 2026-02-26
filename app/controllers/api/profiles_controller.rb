@@ -19,7 +19,7 @@ module Api
 
     # PATCH/PUT /api/profiles/:id
     def update
-      profile = current_user.profile
+      profile = current_user.profiles.find(params[:profile_id])
       if profile.update(profile_params)
         render json: {
           profile: profile_response(profile),

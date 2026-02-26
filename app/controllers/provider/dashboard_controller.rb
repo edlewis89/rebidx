@@ -4,11 +4,10 @@ module Provider
     before_action :ensure_service_provider!
 
     def index
-      profile = current_user.service_provider_profile
-      return @available_listings = [] unless profile
+      profiles = current_user.profiles.provider
+      return @available_listings = [] if profiles.empty?
 
-      # Only include listings that match provider services
-      service_ids = profile.services.pluck(:id)
+      service_ids = profiles.flat_map { |p| p.services.pluck(:id) }.uniq
 
       @available_listings = Listing.open.joins(:services).where(services: { id: service_ids }).distinct
 

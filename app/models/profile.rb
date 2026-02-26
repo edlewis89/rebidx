@@ -9,7 +9,16 @@ class Profile < ApplicationRecord
   has_many :bids, dependent: :destroy
   has_many :ratings_received, through: :bids, source: :rating
 
-  enum profile_type: { homeowner: 0, service_provider: 1, seller: 2, buyer: 3, investor: 2 }
+  # Only define what Profile actually represents
+  # Profile types distinguish licensed vs unlicensed:
+  enum profile_type: {
+    homeowner: 0,
+    provider: 1,
+    unlicensed_provider: 2,
+    seller: 3,
+    buyer: 4,
+    investor: 5
+  }
 
   has_one_attached :license do |attachable|
     attachable.variant :thumb, resize_to_limit: [250, 150], processor: :mini_magick
@@ -25,12 +34,14 @@ class Profile < ApplicationRecord
   end
 
   # Validate business_name and full_name only if profile is a service provider
-  validates :business_name, :full_name, presence: true, if: :service_provider?
+  validates :business_name, :full_name, presence: true, if: :provider?
 
   # Optional: you can validate tax_id or licenses too for providers
   # validates :tax_id, presence: true, if: :service_provider?
 
   validates :tax_id, presence: true, if: -> { license_types.any?(&:requires_verification?) }
+
+  validate :profile_matches_user_role
 
   # Delegate status methods
   delegate :unverified?, :pending?, :verified?, :rejected?, :not_required?, to: :verification_profile, allow_nil: true
@@ -46,41 +57,84 @@ class Profile < ApplicationRecord
     :will_save_change_to_state? ||
     :will_save_change_to_zipcode?
 
-  # Scope examples
+  # Scopes
   scope :homeowners, -> { where(profile_type: :homeowner) }
-  scope :providers, -> { where(profile_type: :service_provider) }
-  scope :sellers, -> { where(profile_type: :seller) }
-  scope :buyers, -> { where(profile_type: :buyer) }
-  scope :investors, -> { where(profile_type: :investor) }
+  scope :providers,  -> { where(profile_type: :provider) }
 
-  # Verified / unverified
-  scope :verified, -> { where(verified: true) }
+  scope :verified,   -> { where(verified: true) }
   scope :unverified, -> { where(verified: false) }
 
   # ---- Verification Access (READ ONLY) ----
+
+  # --------------------
+  # ROLE HELPERS
+  # --------------------
+
+
+
+  # --------------------
+  # VERIFICATION
+  # --------------------
 
   def verification_profile
     user.ensure_verification_profile!
   end
 
+  delegate :verified?, :pending?, :rejected?, to: :verification_profile, allow_nil: true
+
   def verified_provider?
-    verification_profile.verified?
-  end
-
-  def pending_verification?
-    verification_profile.pending?
-  end
-
-  def rejected_verification?
-    verification_profile.rejected?
+    provider? && verified?
   end
 
   def needs_verification?
-    requires_verification? && !verified_provider?
+    provider? && requires_verification? && !verified?
+  end
+
+  # --------------------
+  # LICENSE LOGIC
+  # --------------------
+
+  def licensed?
+    license.attached?
+  end
+
+  def requires_verification?
+    license_types.where(requires_verification: true).exists?
+  end
+
+  def max_project_budget
+    return 1_000 unless licensed?
+
+    case license_class
+    when "C" then 10_000
+    when "B" then 120_000
+    when "A" then Float::INFINITY
+    else 1_000
+    end
+  end
+
+  # --------------------
+  # RATINGS
+  # --------------------
+
+  def average_rating
+    ratings_received.average(:score)&.round(2) || 0
+  end
+
+  def ratings_count
+    ratings_received.count
+  end
+
+  # --------------------
+  # ADDRESS
+  # --------------------
+
+  def full_address
+    [address, city, state, zipcode].compact.join(", ")
   end
 
   # ---- License Logic ----
-
+  #
   def license_uploaded?
     license.attached?
   end
@@ -91,19 +145,29 @@ class Profile < ApplicationRecord
     license_expires_at > Time.current
   end
 
-  def requires_verification?
-    license_types.where(requires_verification: true).any?
+  # --------------------
+  # ROLE VALIDATION
+  # --------------------
+
+  def profile_matches_user_role
+    case user.role
+    when "homeowner"
+      errors.add(:profile_type, "must be homeowner_profile") unless homeowner?
+    when "service_provider"
+      errors.add(:profile_type, "must be provider_profile") unless provider?
+    when "rebidx_admin"
+      errors.add(:base, "Admin should not have profiles")
+    end
   end
 
-  def average_rating
-    ratings.average(:score)&.round(2) || 0
+  def trigger_verification_if_required
+    return unless requires_verification?
+    return if verification_profile.pending? || verification_profile.verified?
+
+    verification_profile.update!(status: "pending")
   end
 
-  def handyman?
-    !license_uploaded?
-  end
-
-  # ---- Verification Check Creation ----
+  #   # ---- Verification Check Creation ----
 
   def create_license_check
     check = verification_profile.verification_checks.find_or_initialize_by(kind: "business_license")
@@ -124,57 +188,138 @@ class Profile < ApplicationRecord
       check.provider = "manual_review"
     end
   end
-
-  def trigger_verification_if_required
-    return unless requires_verification?
-    return if verification_profile.pending? || verification_profile.verified?
-
-    verification_profile.update!(status: "pending")
-  end
-
-  def max_project_budget
-    return 1_000 unless license_uploaded?
-
-    case license_class
-    when "C"
-      10_000
-    when "B"
-      120_000
-    when "A"
-      Float::INFINITY
-    else
-      1_000
-    end
-  end
-
-  def licensed?
-    license_uploaded?
-  end
-
-  # Updates the associated verification_profile when verified changes
-  def sync_verification_profile
-    return unless self[:verified] # use column, not delegated verified?
-
-    vp = verification_profile
-    vp.update!(
-      status: "verified",
-      verified_at: Time.current
-    )
-    vp.verification_checks.update_all(status: "approved")
-  end
-
-  def full_address
-    [address, city, state, zipcode].compact.join(", ")
-  end
-
-  def average_rating
-    ratings_received.average(:score)&.round(2)
-  end
-
-  def ratings_count
-    ratings_received.count
-  end
 end
+
+#
+#   def verification_profile
+#     user.ensure_verification_profile!
+#   end
+#
+#   def verified_provider?
+#     verification_profile.verified?
+#   end
+#
+#   def pending_verification?
+#     verification_profile.pending?
+#   end
+#
+#   def rejected_verification?
+#     verification_profile.rejected?
+#   end
+#
+#   def needs_verification?
+#     requires_verification? && !verified_provider?
+#   end
+#
+#   # ---- License Logic ----
+#
+#   def license_uploaded?
+#     license.attached?
+#   end
+#
+#   def license_valid?
+#     return false unless license_uploaded?
+#     return true unless license_expires_at.present?
+#     license_expires_at > Time.current
+#   end
+#
+#   def requires_verification?
+#     license_types.where(requires_verification: true).any?
+#   end
+#
+#   def average_rating
+#     ratings.average(:score)&.round(2) || 0
+#   end
+#
+#   def handyman?
+#     !license_uploaded?
+#   end
+#
+#   # ---- Verification Check Creation ----
+#
+#   def create_license_check
+#     check = verification_profile.verification_checks.find_or_initialize_by(kind: "business_license")
+#
+#     check.update!(
+#       status: "pending",
+#       provider: "internal",
+#       data: {
+#         expires_at: license_expires_at,
+#         license_type_ids: license_types.pluck(:id)
+#       }
+#     )
+#   end
+#
+#   def create_identity_check
+#     verification_profile.verification_checks.find_or_create_by!(kind: "identity") do |check|
+#       check.status = "pending"
+#       check.provider = "manual_review"
+#     end
+#   end
+#
+#   def trigger_verification_if_required
+#     return unless requires_verification?
+#     return if verification_profile.pending? || verification_profile.verified?
+#
+#     verification_profile.update!(status: "pending")
+#   end
+#
+#   def max_project_budget
+#     return 1_000 unless license_uploaded?
+#
+#     case license_class
+#     when "C"
+#       10_000
+#     when "B"
+#       120_000
+#     when "A"
+#       Float::INFINITY
+#     else
+#       1_000
+#     end
+#   end
+#
+#   def licensed?
+#     license_uploaded?
+#   end
+#
+#   # Updates the associated verification_profile when verified changes
+#   def sync_verification_profile
+#     return unless self[:verified] # use column, not delegated verified?
+#
+#     vp = verification_profile
+#     vp.update!(
+#       status: "verified",
+#       verified_at: Time.current
+#     )
+#     vp.verification_checks.update_all(status: "approved")
+#   end
+#
+#   def full_address
+#     [address, city, state, zipcode].compact.join(", ")
+#   end
+#
+#   def average_rating
+#     ratings_received.average(:score)&.round(2)
+#   end
+#
+#   def ratings_count
+#     ratings_received.count
+#   end
+#
+#   def profile_matches_user_role
+#     case user.role
+#     when "homeowner"
+#       errors.add(:profile_type, "must be homeowner_profile") unless homeowner_profile?
+#     when "service_provider"
+#       unless contractor? || handyman?
+#         errors.add(:profile_type, "must be contractor or handyman")
+#       end
+#     when "rebidx_admin"
+#       errors.add(:base, "Admin does not require profiles")
+#     end
+#   end
+# end
 
 # class ServiceProviderProfile < ApplicationRecord
 #

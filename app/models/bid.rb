@@ -10,7 +10,7 @@
 #
 # Listing workflow:
 #
-#   open → awarded/in_progress → complete → expired/cancelled
+#  open → awarded/in_progress → complete → expired/cancelled
 #
 # They now match logically — you won’t have conflicts between bid and listing states.
 
@@ -28,12 +28,18 @@ class Bid < ApplicationRecord
   # =========================
   # ENUMS
   # =========================
+  # enum status: {
+  #   pending: 0,       # submitted, awaiting review
+  #   shortlisted: 1,   # homeowner marked as promising
+  #   accepted: 2,      # bid awarded / winner
+  #   rejected: 3,      # explicitly rejected
+  #   withdrawn: 4      # bidder pulled out
+  # }
   enum status: {
-    pending: 0,       # submitted, awaiting review
-    shortlisted: 1,   # homeowner marked as promising
-    accepted: 2,      # bid awarded / winner
-    rejected: 3,      # explicitly rejected
-    withdrawn: 4      # bidder pulled out
+    pending: 0,
+    accepted: 1,
+    rejected: 2,
+    withdrawn: 3
   }
 
   # =========================
@@ -60,7 +66,7 @@ class Bid < ApplicationRecord
   scope :accepted, -> { where(status: :accepted) }
   scope :rejected, -> { where(status: :rejected) }
   scope :withdrawn, -> { where(status: :withdrawn) }
-
+  scope :complete, -> { where(status: :accepted).where.not(completed_at: nil) }
   # =========================
   # HELPERS
   # =========================

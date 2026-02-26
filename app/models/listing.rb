@@ -7,24 +7,25 @@ class Listing < ApplicationRecord
   has_many :listing_services, dependent: :destroy
   has_many :services, through: :listing_services
   has_many :bids, dependent: :destroy   # ✅ THIS WAS MISSING
+  has_many_attached :photos
+
   has_one :awarded_bid, -> { where(status: [:accepted, :paid, :complete]) }, class_name: "Bid"
 
   before_save :update_search_vector
 
   PROPERTY_TYPES = %w[
-  single_family
-  condo
-  townhouse
-  multi_family
-  duplex
-  triplex
-  quadplex
-  manufactured
-  land
-  commercial
-  mixed_use
-].freeze
-
+    single_family
+    condo
+    townhouse
+    multi_family
+    duplex
+    triplex
+    quadplex
+    manufactured
+    land
+    commercial
+    mixed_use
+  ].freeze
 
 
   enum listing_type: {

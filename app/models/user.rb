@@ -23,7 +23,7 @@ class User < ApplicationRecord
   has_many :payments, dependent: :destroy
   has_many :ratings_received, through: :profiles, source: :ratings_received
 
-  enum role: {
+  enum role: { 
     unassigned: 0,
     homeowner: 1,
     service_provider: 2,
@@ -49,16 +49,16 @@ class User < ApplicationRecord
   end
 
   def handyman?
-    service_provider? && (profile.nil? || !profile.license_uploaded?)
+    service_provider? && !profile.license_uploaded?
   end
 
   # ---- License / Verification Helpers ----
   def licensed_provider?
-    profile&.license_uploaded?
+    profiles.any?(&:license_uploaded?)
   end
 
   def verified_provider?
-    profile&.verified_provider?
+    profiles.any?(&:verified_provider?)
   end
 
   # def bid_range
@@ -103,7 +103,10 @@ class User < ApplicationRecord
   end
 
   def unlicensed_provider?
-    service_provider? && profile&.license_types.blank?
+    return false unless service_provider?
+
+    # Check if any of the profiles have licenses
+    profiles.any? { |p| p.profile_type == "unlicensed_provider" || p.license_types.blank? }
   end
 
   # Return the allowed bid range [low, high] from current membership

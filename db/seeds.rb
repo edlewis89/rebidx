@@ -118,8 +118,8 @@ profile_homeowner1 = Profile.create!(user: homeowner1, profile_type: :homeowner,
 profile_homeowner2 = Profile.create!(user: homeowner2, profile_type: :homeowner, full_name: "Eve Homeowner")
 
 # Service providers
-profile_unlicensed = Profile.create!(user: unlicensed_provider, profile_type: :service_provider, business_name: "Bob Repairs", full_name: "Bob Seiger", tax_id: "123456789")
-profile_contractor = Profile.create!(user: licensed_contractor, profile_type: :service_provider, business_name: "Charlie's Construction", full_name: "Charlie Sheen", tax_id: "987654321")
+profile_unlicensed = Profile.create!(user: unlicensed_provider, profile_type: :provider, business_name: "Bob Repairs", full_name: "Bob Seiger", tax_id: "123456789")
+profile_contractor = Profile.create!(user: licensed_contractor, profile_type: :provider, business_name: "Charlie's Construction", full_name: "Charlie Sheen", tax_id: "987654321")
 
 # Assign license
 profile_contractor.license_types << class_c

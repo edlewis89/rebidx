@@ -1,8 +1,42 @@
 <div class="d-flex flex-column bg-light p-3 sidebar-sticky"
      style="width: 220px; min-height: 100vh;">
+
+  <div class="advertisements">
+    <p class="text-muted small">
+      Ads loaded: <%= Advertisement.active.dashboard_sidebar.count %>
+    </p>
+    <% Advertisement.active.by_placement(:dashboard_sidebar).each do |ad| %>
+      <div class="card mb-3 shadow-sm" style="width: 100%;">
+        <% if ad.link.present? %>
+          <%= link_to ad.link, target: "_blank", rel: "noopener" do %>
+            <% if ad.image.attached? %>
+              <%= image_tag ad.image, class: "card-img-top" %>
+            <% else %>
+              <div class="card-body">
+                <h5 class="card-title"><%= ad.title %></h5>
+              </div>
+            <% end %>
+          <% end %>
+        <% else %>
+          <% if ad.image.attached? %>
+            <%= image_tag ad.image, class: "card-img-top" %>
+          <% else %>
+            <div class="card-body">
+              <h5 class="card-title"><%= ad.title %></h5>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+
+  <h5>Menu</h5>
+  <hr>
+
   <% if controller_name == "listings" %>
     <div class="mb-4">
-      <h6 class="text-uppercase text-muted">Search</h6>
+      <h6 class="text-uppercase text-muted"></h6>
 
       <%= form_with url: listings_path, method: :get, local: true do %>
 
@@ -10,7 +44,7 @@
         <div class="mb-2">
           <%= text_field_tag :q,
                              params[:q],
-                             placeholder: "Search jobs…",
+                             placeholder: "Search listings …",
                              class: "form-control form-control-sm",
                              onchange: "this.form.requestSubmit()" %>
         </div>
@@ -81,38 +115,6 @@
     <hr>
   <% end %>
 
-  <div class="advertisements">
-    <p class="text-muted small">
-      Ads loaded: <%= Advertisement.active.dashboard_sidebar.count %>
-    </p>
-    <% Advertisement.active.by_placement(:dashboard_sidebar).each do |ad| %>
-      <div class="card mb-3 shadow-sm" style="width: 100%;">
-        <% if ad.link.present? %>
-          <%= link_to ad.link, target: "_blank", rel: "noopener" do %>
-            <% if ad.image.attached? %>
-              <%= image_tag ad.image, class: "card-img-top" %>
-            <% else %>
-              <div class="card-body">
-                <h5 class="card-title"><%= ad.title %></h5>
-              </div>
-            <% end %>
-          <% end %>
-        <% else %>
-          <% if ad.image.attached? %>
-            <%= image_tag ad.image, class: "card-img-top" %>
-          <% else %>
-            <div class="card-body">
-              <h5 class="card-title"><%= ad.title %></h5>
-            </div>
-          <% end %>
-        <% end %>
-      </div>
-    <% end %>
-  </div>
-
-
-  <h5>Menu</h5>
-  <hr>
 
   <% if user_signed_in? %>
 

@@ -62,6 +62,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_24_033202) do
     t.text "message"
     t.text "terms"
     t.integer "status", default: 0, null: false
+    t.datetime "completed_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["listing_id", "profile_id"], name: "index_bids_on_listing_id_and_profile_id", unique: true

@@ -20,10 +20,10 @@ class ListingsController < ApplicationController
 
     base_scope =
       if current_user&.profiles&.any?
-        profile = current_user.profiles.first
+        profile = current_user.profiles.find_by(profile_type: :homeowner)
         gate = AccessGate.new(profile)
 
-        if profile.service_provider?
+        if profile.provider?
           scope = Listing.open
                          .joins(:services)
                          .where(services: { id: profile.service_ids })
@@ -62,7 +62,7 @@ class ListingsController < ApplicationController
 
   # GET /listings/new
   def new
-    profile = current_user.profiles.first
+    profile = current_user.profiles.find_by(profile_type: :homeowner)
     gate = AccessGate.new(profile)
 
     unless gate.can_create_listing?
@@ -79,7 +79,7 @@ class ListingsController < ApplicationController
 
   # POST /listings
   def create
-    profile = current_user.profiles.first
+    profile = current_user.profiles.find_by(profile_type: :homeowner)
     gate = AccessGate.new(profile)
     @listing = profile.listings.build(listing_params)
     authorize @listing
@@ -169,7 +169,8 @@ class ListingsController < ApplicationController
       :deal_type,
       :property_condition,
       :property_type,
-      service_ids: []
+      service_ids: [],
+      photos: []
     )
   end
 end

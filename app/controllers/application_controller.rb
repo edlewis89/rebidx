@@ -16,20 +16,22 @@ class ApplicationController < ActionController::Base
 
   # After login, send user to appropriate dashboard or onboarding
   def after_sign_in_path_for(resource)
-    # Unassigned users go choose role
     return choose_role_path if resource.unassigned?
 
-    if resource.service_provider?
-      # If profile is not yet set up, send to onboarding
-      if resource.service_provider_profile.nil?
-        provider_onboarding_path
-      else
-        provider_dashboard_path
-      end
-    elsif resource.homeowner?
+    case resource.role
+    when "service_provider"
+      return provider_onboarding_path if resource.profiles.blank?
+      provider_dashboard_path
+
+    when "homeowner"
       homeowner_dashboard_path
-    elsif resource.admin?
+
+    # when "investor"
+    #   investor_dashboard_path
+
+    when "rebidx_admin"
       admin_root_path
+
     else
       root_path
     end
@@ -49,11 +51,9 @@ class ApplicationController < ActionController::Base
   # Redirect service providers/handymen without profile to onboarding
   def redirect_unfinished_providers
     return unless user_signed_in?
-    return unless current_user.service_provider? || current_user.unlicensed_provider?
-    return if current_user.service_provider_profile.present?
-    return unless request.get? # don't redirect on form POST
-
-    # Avoid redirect loop by skipping if already on onboarding
+    return unless current_user.service_provider?
+    return if current_user.profiles.provider.exists?
+    return unless request.get?
     return if request.path.start_with?(provider_onboarding_path)
 
     redirect_to provider_onboarding_path

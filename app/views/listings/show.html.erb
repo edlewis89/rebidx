@@ -13,6 +13,14 @@
           </span>
         </div>
 
+        <% if @listing.photos.attached? %>
+          <div class="listing-photos">
+            <% @listing.photos.each do |photo| %>
+              <%= image_tag photo.variant(resize_to_limit: [400, 400]) %>
+            <% end %>
+          </div>
+        <% end %>
+
         <% if user_signed_in? && @listing.open? %>
           <% gate = AccessGate.new(current_user) %>
 

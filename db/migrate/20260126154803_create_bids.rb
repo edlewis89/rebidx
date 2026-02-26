@@ -7,6 +7,7 @@ class CreateBids < ActiveRecord::Migration[7.1]
       t.text :message
       t.text :terms
       t.integer :status, default: 0, null: false
+      t.datetime :completed_at
 
       t.timestamps
     end
